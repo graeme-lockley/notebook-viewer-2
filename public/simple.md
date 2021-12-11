@@ -10,7 +10,7 @@ centuary = 100
 
 This is a piece of code that is executed so you will see the value however it isn't pinned meaning you will be unable to see the calculation.
 
-``` js x
+``` js-x | pin
 value = {
     const items = [1, 2, 3, 4, 5];
     const double = (x) => x + x;
@@ -21,7 +21,7 @@ value = {
 
 This code is evaluated, the result displayed and the code is made visible directly below.  What's cool is this value is reactive and dependent on `value`.
 
-``` js x | pin
+``` js-x | pin
 {
     const square = (x) => x * x;
 
@@ -31,7 +31,7 @@ This code is evaluated, the result displayed and the code is made visible direct
 
 We can also add some assertions - a simple way of adding tests into notebooks.  Let's create the artificial function `add`:
 
-``` js x | pin
+``` js-x | pin
 add = (a, b) => {
     if (a < 0 || b < 0)
         throw new Error("Precondition failed");
@@ -66,13 +66,13 @@ TestIterations = Inputs.range([0, 100], {value: 20, step: 1, label: "Test Iterat
 
 I can now link the number of random numbers in a list using the value above:
 
-``` js x
+``` js-x
 Array(TestIterations).fill(0).map(() => (Math.random() * 100 | 0) / 100)
 ```
 
 We can also load some data:
 
-``` js x
+``` js-x
 athletes = load("athletes.csv").csv({typed: true});
 ```
 

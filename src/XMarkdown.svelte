@@ -10,6 +10,7 @@
     import plaintext from "highlight.js/lib/languages/plaintext";
     import "highlight.js/styles/base16/papercolor-light.css";
     import { AbstractFile, Library } from "@observablehq/stdlib";
+    import { javascriptX } from "./plugins/JavascriptX";
     import { javascriptXAssert } from "./plugins/JavascriptXAssert";
 
     hljs.registerLanguage("javascript", javascript);
@@ -23,7 +24,7 @@
     const builtins = runtime.module();
 
     const bindings = new Map([["hljs", hljs]]);
-    const plugins = [javascriptXAssert];
+    const plugins = [javascriptX, javascriptXAssert];
     plugins.filter((p) => p.setup !== undefined).map((p) => p.setup(bindings));
 
     class FA extends AbstractFile {
