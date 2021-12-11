@@ -14,6 +14,7 @@
         FileAttachments,
         Library,
     } from "@observablehq/stdlib";
+    import { javascriptXAssert } from "./plugins/JavascriptXAssert";
 
     hljs.registerLanguage("javascript", javascript);
     hljs.registerLanguage("js", javascript);
@@ -24,6 +25,8 @@
     const runtime = new Runtime();
 
     const builtins = runtime.module();
+
+    const plugins = [javascriptXAssert];
 
     class FA extends AbstractFile {
         constructor(name: string) {
@@ -289,8 +292,13 @@
     const renderer = {
         code(code: string, infostring: string, escaped: boolean | undefined) {
             const is = parseInfoString(infostring);
+            const firstInfoStringWord = firstWord(infostring);
 
-            if (is.get("js") == "")
+            const plugin = plugins.find((p) => p.name === firstInfoStringWord);
+
+            if (plugin !== undefined) {
+                return plugin.render(module, code, is);
+            } else if (is.get("js") == "")
                 return `<pre><code class="hljs language-javascript">${
                     hljs.highlight(code, { language: "js" }).value
                 }</pre></code>`;
@@ -298,13 +306,6 @@
                 const block = factory.block(code, is);
 
                 switch (block.type) {
-                    case "Assert": {
-                        block.cell.includeObserver(
-                            cellAssertObserver(is.get("assert"))
-                        );
-
-                        return renderResult(block, is);
-                    }
                     case "Assignment": {
                         block.cell.includeObserver(cellValueObserver());
                         return renderResult(block, is);
@@ -347,6 +348,12 @@
     };
 
     marked.use({ renderer });
+
+    const firstWord = (text: string): string => {
+        const indexOfSpace = text.indexOf(" ");
+
+        return indexOfSpace === -1 ? text : text.slice(0, indexOfSpace);
+    };
 
     export let sourceURL: string;
 </script>

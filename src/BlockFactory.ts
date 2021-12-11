@@ -2,17 +2,10 @@ import type { Cell, Module } from "./Runtime";
 import { parseCell } from "@observablehq/parser/src/parse.js"
 
 
-export type Block = Assert | Assignment | View | AssignmentView;
+export type Block = Assignment | View | AssignmentView;
 
 export interface Assignment {
     type: 'Assignment';
-    name?: string;
-    cell: Cell;
-    code: string;
-}
-
-export interface Assert {
-    type: 'Assert';
     name?: string;
     cell: Cell;
     code: string;
@@ -69,12 +62,6 @@ class BlockFactory {
                 valueCell.redefine(name, [name + "$$"], eval(`(${name}$$) => Generators.input(${name}$$)`));
                 return { type: 'AssignmentView', viewCell, valueCell, name, code };
             }
-        } else if (is.has('assert')) {
-            const cell = this.module.cell();
-
-            cell.redefine(name, dependencies, result);
-
-            return { type: 'Assert', cell, name, code };
         } else {
             const cell = this.module.cell();
 

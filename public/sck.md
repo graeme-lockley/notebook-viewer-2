@@ -44,15 +44,15 @@ sum = (ns) =>
 	ns.reduce((x, y) => x + y, 0)
 ```
 
-``` js x | assert Sum over an empty lists returns 0
+``` js-x-assert Sum over an empty lists returns 0
 sum([]) === 0
 ```
 
-``` js x | assert Sum over a single element list returns that value
+``` js-x-assert Sum over a single element list returns that value
 sum([1]) === 1
 ```
 
-``` js x | assert Sum over a multiple elements within a list returns their sum
+``` js-x-assert Sum over a multiple elements within a list returns their sum
 sum([1, 2, 3]) === 6
 ```
 
@@ -97,7 +97,7 @@ LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
 
 The first scenario is a comma or newline separated string of numbers returning their sum. It is worth noting that, because `listOf` will return an empty list as well as lists that contain a single element, the scenarios of the empty string and a single value are encapsulated within this scenario.
 
-``` js x | assert Comma or newline separated string of numbers will return the sum
+``` js-x-assert Comma or newline separated string of numbers will return the sum
 forall(listOf(POSITIVE_INTEGERS), (ns) =>
     add(joinString(ns, [",", "\n"])) === sum(ns)
 )
@@ -105,7 +105,7 @@ forall(listOf(POSITIVE_INTEGERS), (ns) =>
 
 The second scenario is a user selected character separates numbers.
 
-``` js x | assert numbers separated with a custom single character separator returns the sum
+``` js-x-assert numbers separated with a custom single character separator returns the sum
 forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
     add(`//${sep}\n${joinString(ns, [sep])}`) === sum(ns)
 )
@@ -113,7 +113,7 @@ forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
 
 The third scenario is, if there are any negative integers, then an exception must be thrown containing all of the negatives.
 
-``` js x | assert numbers with at least one negative should throw an exception listing all of the negatives
+``` js-x-assert numbers with at least one negative should throw an exception listing all of the negatives
 forall(LIST_OF_INTEGERS_WITH_ONE_NEGATIVE, (ns) =>
     catchException(() => add(ns.join(","))) === ns.filter(n => n < 0).join(", ")
 )
