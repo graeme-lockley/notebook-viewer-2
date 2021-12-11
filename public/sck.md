@@ -105,7 +105,7 @@ forall(listOf(POSITIVE_INTEGERS), (ns) =>
 
 The second scenario is a user selected character separates numbers.
 
-``` js-x-assert numbers separated with a custom single character separator returns the sum
+``` js-x-assert Numbers separated with a custom single character separator returns the sum
 forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
     add(`//${sep}\n${joinString(ns, [sep])}`) === sum(ns)
 )
@@ -113,7 +113,7 @@ forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
 
 The third scenario is, if there are any negative integers, then an exception must be thrown containing all of the negatives.
 
-``` js-x-assert numbers with at least one negative should throw an exception listing all of the negatives
+``` js-x-assert Numbers with at least one negative should throw an exception listing all of the negatives
 forall(LIST_OF_INTEGERS_WITH_ONE_NEGATIVE, (ns) =>
     catchException(() => add(ns.join(","))) === ns.filter(n => n < 0).join(", ")
 )

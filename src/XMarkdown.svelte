@@ -8,12 +8,8 @@
     import hljs from "highlight.js/lib/core";
     import javascript from "highlight.js/lib/languages/javascript";
     import plaintext from "highlight.js/lib/languages/plaintext";
-    import "highlight.js/styles/base16/solarized-light.css";
-    import {
-        AbstractFile,
-        FileAttachments,
-        Library,
-    } from "@observablehq/stdlib";
+    import "highlight.js/styles/base16/papercolor-light.css";
+    import { AbstractFile, Library } from "@observablehq/stdlib";
     import { javascriptXAssert } from "./plugins/JavascriptXAssert";
 
     hljs.registerLanguage("javascript", javascript);
@@ -26,7 +22,9 @@
 
     const builtins = runtime.module();
 
+    const bindings = new Map([["hljs", hljs]]);
     const plugins = [javascriptXAssert];
+    plugins.filter((p) => p.setup !== undefined).map((p) => p.setup(bindings));
 
     class FA extends AbstractFile {
         constructor(name: string) {
@@ -172,58 +170,6 @@
             },
         };
     };
-
-    const updateAssertDivAsync = (
-        cell: Cell,
-        value: { message: string; error?: string; value?: undefined | boolean }
-    ) => {
-        const id = divID(cell);
-
-        const updateDiv = () => {
-            const element = document.getElementById(id);
-
-            if (element === null) return false;
-            else if (value.error !== undefined) {
-                element.innerHTML = `Error: ${value.error}: ${value.message}`;
-                return true;
-            } else if (value.value !== undefined) {
-                element.innerHTML = `${value.value ? "Success" : "Failed"}: ${
-                    value.message
-                }`;
-
-                return true;
-            } else {
-                element.innerHTML = "Waiting";
-                return true;
-            }
-        };
-
-        const updateDivLoop = () => {
-            Promise.resolve(updateDiv()).then((r) => {
-                if (!r) delay(100).then(() => updateDivLoop());
-            });
-        };
-
-        updateDivLoop();
-    };
-
-    const cellAssertObserver = (message: string) => ({
-        fulfilled(cell: Cell, value: any): void {
-            updateAssertDivAsync(cell, {
-                message,
-                value: value ? true : false,
-            });
-        },
-        pending(cell: Cell): void {
-            updateAssertDivAsync(cell, { message });
-        },
-        rejected(cell: Cell, value?: any): void {
-            updateAssertDivAsync(cell, {
-                message,
-                error: `${value === undefined ? "" : value.toString()}`,
-            });
-        },
-    });
 
     const updateViewDivAsync = (cell: Cell, value: any) => {
         const id = divID(cell);
