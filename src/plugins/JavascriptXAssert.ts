@@ -11,7 +11,6 @@ type CodeRenderer = (code: string) => string;
 
 export const javascriptXAssert: JavascriptXAssert = {
     name: 'js-x-assert',
-    code: 'js-x-assert',
     hljs: undefined,
 
     setup: function (bindings: Bindings) {
