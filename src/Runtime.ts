@@ -1,6 +1,6 @@
 const logger = {
     info(msg: string) {
-        console.log(`Runtime: Info: ${msg}`);
+        // console.log(`Runtime: Info: ${msg}`);
     },
 
     error(msg: string) {

@@ -11,7 +11,7 @@ export interface ParseResult {
 export const parse = (code: string): ParseResult => {
     const ast = parseCell(code);
 
-    console.log("AST: ", ast);
+    // console.log("AST: ", ast);
 
     const name = ast.id !== null && ast.id.type === "Identifier" ? ast.id.name : undefined;
     const referencedNames = ast.references.map((dep: { name: string }) => dep.name);

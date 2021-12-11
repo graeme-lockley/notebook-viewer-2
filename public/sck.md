@@ -44,15 +44,15 @@ sum = (ns) =>
 	ns.reduce((x, y) => x + y, 0)
 ```
 
-``` js-x-assert Sum over an empty lists returns 0
+``` js-x-assert Sum over an empty lists returns 0 | pin
 sum([]) === 0
 ```
 
-``` js-x-assert Sum over a single element list returns that value
+``` js-x-assert Sum over a single element list returns that value | pin
 sum([1]) === 1
 ```
 
-``` js-x-assert Sum over a multiple elements within a list returns their sum
+``` js-x-assert Sum over a multiple elements within a list returns their sum | pin
 sum([1, 2, 3]) === 6
 ```
 

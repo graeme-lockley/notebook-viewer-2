@@ -36,7 +36,7 @@ export const updater = (elementID: string) => {
     }
 };
 
-export const superUpdater = (elementID: string) => {
+export const inspectorUpdater = (elementID: string) => {
     let last = Date.now();
     let inspector = undefined;
 

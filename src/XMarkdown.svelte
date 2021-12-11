@@ -209,15 +209,15 @@
 
     const cellViewObserver = () => ({
         fulfilled(cell: Cell, value: any): void {
-            console.log("cellViewObserver: fulfilled: ", value);
+            // console.log("cellViewObserver: fulfilled: ", value);
             updateViewDivAsync(cell, value);
         },
         pending(cell: Cell): void {
-            console.log("cellViewObserver: pending");
+            // console.log("cellViewObserver: pending");
             updateViewDivAsync(cell, undefined);
         },
         rejected(cell: Cell, value?: any): void {
-            console.log("cellViewObserver: rejected: ", value);
+            // console.log("cellViewObserver: rejected: ", value);
             updateViewDivAsync(cell, value);
         },
     });

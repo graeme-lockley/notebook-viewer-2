@@ -34,3 +34,14 @@ body {
 .nbv-js-x-assert pre.nbv-styled-code-block {
 	margin-top: 0;
 }
+
+.nbv-js-x > .observablehq {
+	background-color: #f8f8f8;
+	margin-top: 1em;
+	padding: 13px 13px;
+}
+
+.nbv-js-x pre.nbv-styled-code-block {
+	margin-top: 0;
+}
+
