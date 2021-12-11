@@ -42,15 +42,15 @@ add = (a, b) => {
 
 Now let's add some test code.  The first test hides the code whilst the following will both show the code.
 
-``` js x | assert Given positive values then we get the sum of both values back
+``` js-x-assert Given positive values then we get the sum of both values back
 add(1, 2) === 3
 ```
 
-``` js x | pin | assert Given a negative argument then all hell breaks loose
+``` js-x-assert Given a negative argument then all hell breaks loose
 add(-1, 2) === 1
 ```
 
-``` js x | pin | assert Given a silly mistake this test should fail
+``` js-x-assert Given a silly mistake this test will fail
 add(1, 2) === 2
 ```
 
@@ -69,7 +69,6 @@ I can now link the number of random numbers in a list using the value above:
 ``` js x
 Array(TestIterations).fill(0).map(() => (Math.random() * 100 | 0) / 100)
 ```
-
 
 We can also load some data:
 
