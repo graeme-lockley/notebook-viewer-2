@@ -2,7 +2,7 @@
 
 A good starting point for many two-dimensional charts with x and y axes.
 
-``` js-x-view
+``` js-x-view | pin
 chart = {
   const svg = d3.create("svg")
       .attr("viewBox", [0, 0, width, height]);
