@@ -1,11 +1,13 @@
 import { parse } from "../Parser";
 import type { Cell, Module, Observer } from "../Runtime";
-import { divID, updater } from "./Helpers";
+import { divID, renderCode, updater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
 interface JavascriptXView extends Plugin {
     hljs: any | undefined;
 }
+
+type Renderer = () => string;
 
 export const javascriptXView: JavascriptXView = {
     name: 'js-x-view',
@@ -32,35 +34,31 @@ export const javascriptXView: JavascriptXView = {
         const viewID = viewCellID + '-view';
         const codeID = viewCellID + '-code';
 
-        const renderedCode =
-            this.hljs === undefined
-                ? `<pre class='nbv-unstyled-code-block'><code>${body}</code></pre>`
-                : `<pre class='nbv-styled-code-block'><code class="hljs language-javascript">${this.hljs.highlight(body, { language: "js" }).value
-                }</pre></code>`;
+        const renderer: Renderer =
+            () => renderCode(this.hljs, 'javascript', body);
 
-        viewCell.includeObserver(observer(viewID, codeID, pr.name, options.has('pin'), renderedCode));
+        viewCell.includeObserver(observer(viewID, codeID, pr.name, options.has('pin'), renderer));
 
         return `<div id='${viewCellID}' class='nbv-js-x-view'><div id='${viewID}'></div><div id='${codeID}'></div></div>`;
     }
 };
 
-const observer = (viewElementID: string, codeElementID: string, name: string, pin: boolean, renderedCode: string): Observer => {
+const observer = (viewElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
     const inspectorControl = updater(viewElementID);
     const codeControl = updater(codeElementID);
 
     return {
         fulfilled: function (cell: Cell, value: any): void {
             inspectorControl.update(() => value);
-            codeControl.update(() => pin ? renderedCode : "");
+            codeControl.update(() => pin ? renderer() : "");
         },
         pending: function (cell: Cell): void {
             inspectorControl.update(() => '');
-            codeControl.update(() => pin ? renderedCode : "");
+            codeControl.update(() => pin ? renderer() : "");
         },
         rejected: function (cell: Cell, value?: any): void {
             inspectorControl.update(() => value);
-            codeControl.update(() => renderedCode);
+            codeControl.update(renderer);
         }
     };
 }
-

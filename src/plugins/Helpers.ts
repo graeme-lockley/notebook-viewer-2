@@ -17,7 +17,7 @@ export const updater = (elementID: string) => {
                 element.childNodes.forEach((child) =>
                     element.removeChild(child)
                 );
-                
+
                 element.appendChild(c);
             }
             else
@@ -82,7 +82,11 @@ export const inspectorUpdater = (elementID: string) => {
     }
 };
 
-
 const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
+export const renderCode = (hljs, language: string, body: string): string =>
+    hljs === undefined
+        ? `<pre class='nbv-unstyled-code-block'><code>${body}</code></pre>`
+        : `<pre class='nbv-styled-code-block'><code class="hljs language-${language}">${hljs.highlight(body, { language }).value
+        }</pre></code>`;

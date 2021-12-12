@@ -8,7 +8,7 @@
     import plaintext from "highlight.js/lib/languages/plaintext";
     import "highlight.js/styles/base16/papercolor-light.css";
     import { AbstractFile, Library } from "@observablehq/stdlib";
-    
+        
     import { javascriptX } from "./plugins/JavascriptX";
     import { javascriptXAssert } from "./plugins/JavascriptXAssert";
     import { javascriptXView } from "./plugins/JavascriptXView";
