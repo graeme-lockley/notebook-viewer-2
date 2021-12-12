@@ -132,7 +132,7 @@ joinString = (ns, seps) =>
 
 The following are the functions that collectively make up the generative testing framework.  A generator is a [thunk](https://en.wikipedia.org/wiki/Thunk) which, when invoked, will return a value.  Using the function `integerInRange` we can create a thunk called `numbers` which, when called, will return a value in the range 0 to 1000 inclusive:
 
-``` js x | pin
+``` js-x | pin
 numbers = () => integerInRange(0, 1000)
 ```
 

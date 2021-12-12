@@ -4,18 +4,20 @@
 
     import { marked } from "marked";
     import hljs from "highlight.js/lib/core";
-    import javascript from "highlight.js/lib/languages/javascript";
-    import plaintext from "highlight.js/lib/languages/plaintext";
+    import javascript_highlighter from "highlight.js/lib/languages/javascript";
+    import plaintext_highlighter from "highlight.js/lib/languages/plaintext";
     import "highlight.js/styles/base16/papercolor-light.css";
     import { AbstractFile, Library } from "@observablehq/stdlib";
-        
+
+    import { javascript } from "./plugins/Javascript";
     import { javascriptX } from "./plugins/JavascriptX";
     import { javascriptXAssert } from "./plugins/JavascriptXAssert";
     import { javascriptXView } from "./plugins/JavascriptXView";
+    import { renderCode } from "./plugins/Helpers";
 
-    hljs.registerLanguage("javascript", javascript);
-    hljs.registerLanguage("js", javascript);
-    hljs.registerLanguage("plaintext", plaintext);
+    hljs.registerLanguage("javascript", javascript_highlighter);
+    hljs.registerLanguage("js", javascript_highlighter);
+    hljs.registerLanguage("plaintext", plaintext_highlighter);
 
     const library = new Library();
 
@@ -24,7 +26,12 @@
     const builtins = runtime.module();
 
     const bindings = new Map([["hljs", hljs]]);
-    const plugins = [javascriptX, javascriptXAssert, javascriptXView];
+    const plugins = [
+        javascriptX,
+        javascript,
+        javascriptXAssert,
+        javascriptXView,
+    ];
     plugins.filter((p) => p.setup !== undefined).map((p) => p.setup(bindings));
 
     class FA extends AbstractFile {
@@ -125,17 +132,10 @@
 
             const plugin = plugins.find((p) => p.name === firstInfoStringWord);
 
-            if (plugin !== undefined) {
-                return plugin.render(module, code, is);
-            } else if (is.get("js") == "")
-                return `<pre><code class="hljs language-javascript">${
-                    hljs.highlight(code, { language: "js" }).value
-                }</pre></code>`;
-            else console.log("Unknown infostring:", infostring);
-
-            return `<pre><code class="hljs">${
-                hljs.highlight(code, { language: "plaintext" }).value
-            }</pre></code>`;
+            if (plugin === undefined) {
+                console.log("Unknown infostring:", infostring);
+                return renderCode(hljs, "plaintext", code);
+            } else return plugin.render(module, code, is);
         },
     };
 
