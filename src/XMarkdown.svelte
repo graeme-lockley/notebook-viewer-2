@@ -8,6 +8,8 @@
     import plaintext_highlighter from "highlight.js/lib/languages/plaintext";
     import "highlight.js/styles/base16/papercolor-light.css";
     import { AbstractFile, Library } from "@observablehq/stdlib";
+    import observe from "@observablehq/stdlib/src/generators/observe.js";
+
 
     import { javascript } from "./plugins/Javascript";
     import { javascriptX } from "./plugins/JavascriptX";
@@ -42,6 +44,20 @@
         url() {
             return this.name;
         }
+    }
+
+    function width() {
+        return observe(function (change) {
+            var width = change(document.body.clientWidth);
+            function resized() {
+                var w = document.body.clientWidth;
+                if (w !== width) change((width = w));
+            }
+            window.addEventListener("resize", resized);
+            return function () {
+                window.removeEventListener("resize", resized);
+            };
+        });
     }
 
     builtins
@@ -115,6 +131,7 @@
         .cell("Generators", CalculationPolicy.Dormant)
         .define([], () => library.Generators);
     builtins.cell("now", CalculationPolicy.Dormant).define([], () => now());
+    builtins.cell("width", CalculationPolicy.Dormant).define([], () => width());
     builtins
         .cell("Promises", CalculationPolicy.Dormant)
         .define([], () => library.Promises);

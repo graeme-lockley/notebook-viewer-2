@@ -73,6 +73,6 @@ margin = {
 ```
 
 ``` js-x | pin
-width = 1200
+width
 ```
 
