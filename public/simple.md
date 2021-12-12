@@ -89,4 +89,3 @@ tableRows
 ```
 
 Now let's add a graphviz picture!
-

@@ -1,7 +1,4 @@
-import type { Cell } from "../Runtime";
-import { Inspector } from "@observablehq/inspector";
-
-export const divID = (cell: Cell, suffix?: string): string => `cell-${cell.id}${suffix === undefined ? '' : `-${suffix}`}`;
+import { Inspector } from "@observablehq/runtime";
 
 export const valueUpdater = (elementID: string): ((content: string | Node) => void) => {
     let last = Date.now();
