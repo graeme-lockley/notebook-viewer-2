@@ -139,7 +139,7 @@ numbers = () => integerInRange(0, 1000)
 To show how this can work we can call this generator 20 times and get a list of random numbers:
 
 ``` js x | pin
-Array(20).fill(0).map(numbers)
+Array(DEFAULT_LIST_LENGTH).fill(0).map(numbers)
 ```
 
 Returning to `integerInRange` it returns a random number in the range (inclusive) of the two passed arguments.
@@ -188,9 +188,8 @@ We are now able to produce a collection of generator composition functions.
 
 Given a generator, `listOf` will return a generator which, when applied, will return a list consisting of 0 to ${DEFAULT_LIST_LENGTH} elements.  Each element is created using the passed generator.
 
-``` js x | viewof
-// DEFAULT_LIST_LENGTH = Inputs.range([1, 10000], {value: 10, step: 1, label: "List Length"})
-DEFAULT_LIST_LENGTH = 10
+``` js x view
+DEFAULT_LIST_LENGTH = Inputs.range([1, 100], {value: 10, step: 1, label: "Maximum Generated List Length"})
 ```
 
 ``` js x | pin
