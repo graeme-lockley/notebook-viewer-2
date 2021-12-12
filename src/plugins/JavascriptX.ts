@@ -1,6 +1,6 @@
 import { parse } from "../Parser";
 import type { Cell, Module, Observer } from "../Runtime";
-import { divID, updater, inspectorUpdater, renderCode } from "./Helpers";
+import { divID, valueUpdater, inspectorUpdater, renderCode } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 import type { Inspector } from "@observablehq/inspector";
 
@@ -39,20 +39,20 @@ export const javascriptX: JavascriptX = {
 
 const observer = (inspectorElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
     const inspectorControl = inspectorUpdater(inspectorElementID);
-    const codeControl = updater(codeElementID);
+    const codeControl = valueUpdater(codeElementID);
 
     return {
         fulfilled: function (cell: Cell, value: any): void {
-            inspectorControl.update((inspector: Inspector) => inspector.fulfilled(value, name));
-            codeControl.update(() => pin ? renderer() : "");
+            inspectorControl((inspector: Inspector) => inspector.fulfilled(value, name));
+            codeControl(pin ? renderer() : '');
         },
         pending: function (cell: Cell): void {
-            inspectorControl.update((inspector: Inspector) => inspector.pending());
-            codeControl.update(() => pin ? renderer() : "");
+            inspectorControl((inspector: Inspector) => inspector.pending());
+            codeControl(pin ? renderer() : '');
         },
         rejected: function (cell: Cell, value?: any): void {
-            inspectorControl.update((inspector: Inspector) => inspector.rejected(value));
-            codeControl.update(renderer);
+            inspectorControl((inspector: Inspector) => inspector.rejected(value));
+            codeControl(renderer());
         }
     };
 }

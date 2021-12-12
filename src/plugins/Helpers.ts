@@ -3,30 +3,28 @@ import { Inspector } from "@observablehq/inspector";
 
 export const divID = (cell: Cell, suffix?: string): string => `cell-${cell.id}${suffix === undefined ? '' : `-${suffix}`}`;
 
-export const updater = (elementID: string) => {
+export const valueUpdater = (elementID: string): ((content: string | Node) => void) => {
     let last = Date.now();
 
-    const updateDiv = (moment: number, content: () => string | Node) => {
+    const updateDiv = (moment: number, content: string | Node) => {
         const element = document.getElementById(elementID);
 
         if (element === null) return false;
         else if (last === moment) {
-            const c = content();
-
-            if (c instanceof Node) {
+            if (content instanceof Node) {
                 element.childNodes.forEach((child) =>
                     element.removeChild(child)
                 );
 
-                element.appendChild(c);
+                element.appendChild(content);
             }
             else
-                element.innerHTML = c;
+                element.innerHTML = content;
             return true;
         } else return true;
     };
 
-    const updateDivLoop = (moment: number, content: () => string | Node) => {
+    const updateDivLoop = (moment: number, content: string | Node) => {
         Promise.resolve(updateDiv(moment, content)).then((r) => {
             if (!r) delay(100).then(() => updateDivLoop(moment, content));
         });
@@ -38,32 +36,30 @@ export const updater = (elementID: string) => {
         return moment;
     };
 
-    return {
-        update: (content: () => string | Node) => {
-            updateDivLoop(snapshot(), content)
-        }
-    }
+    return (content: string | Node) => {
+        updateDivLoop(snapshot(), content)
+    };
 };
 
-export const inspectorUpdater = (elementID: string) => {
+export const inspectorUpdater = (elementID: string): ((inspector: Inspector) => void) => {
     let last = Date.now();
     let inspector = undefined;
 
-    const updateDiv = (moment: number, gen: (inspector: Inspector) => void) => {
+    const updateDiv = (moment: number, update: (inspector: Inspector) => void) => {
         const element = document.getElementById(elementID);
 
         if (element === null) return false;
         else if (last === moment) {
             if (inspector === undefined)
                 inspector = new Inspector(element);
-            gen(inspector);
+            update(inspector);
             return true;
         } else return true;
     };
 
-    const updateDivLoop = (moment: number, gen: (inspector: Inspector) => void) => {
-        Promise.resolve(updateDiv(moment, gen)).then((r) => {
-            if (!r) delay(100).then(() => updateDivLoop(moment, gen));
+    const updateDivLoop = (moment: number, update: (inspector: Inspector) => void) => {
+        Promise.resolve(updateDiv(moment, update)).then((r) => {
+            if (!r) delay(100).then(() => updateDivLoop(moment, update));
         });
     }
 
@@ -73,11 +69,9 @@ export const inspectorUpdater = (elementID: string) => {
         return moment;
     };
 
-    return {
-        update: (gen: (inspector: Inspector) => void) => {
-            updateDivLoop(snapshot(), gen)
-        }
-    }
+    return (update: (inspector: Inspector) => void) => {
+        updateDivLoop(snapshot(), update)
+    };
 };
 
 const delay = (ms: number) =>

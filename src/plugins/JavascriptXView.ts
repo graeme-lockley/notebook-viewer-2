@@ -1,6 +1,6 @@
 import { parse } from "../Parser";
 import type { Cell, Module, Observer } from "../Runtime";
-import { divID, renderCode, updater } from "./Helpers";
+import { divID, renderCode, valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
 interface JavascriptXView extends Plugin {
@@ -44,21 +44,21 @@ export const javascriptXView: JavascriptXView = {
 };
 
 const observer = (viewElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
-    const inspectorControl = updater(viewElementID);
-    const codeControl = updater(codeElementID);
+    const viewControl = valueUpdater(viewElementID);
+    const codeControl = valueUpdater(codeElementID);
 
     return {
         fulfilled: function (cell: Cell, value: any): void {
-            inspectorControl.update(() => value);
-            codeControl.update(() => pin ? renderer() : "");
+            viewControl(value);
+            codeControl(pin ? renderer() : '');
         },
         pending: function (cell: Cell): void {
-            inspectorControl.update(() => '');
-            codeControl.update(() => pin ? renderer() : "");
+            viewControl('');
+            codeControl(pin ? renderer() : '');
         },
         rejected: function (cell: Cell, value?: any): void {
-            inspectorControl.update(() => value);
-            codeControl.update(renderer);
+            viewControl(value);
+            codeControl(renderer());
         }
     };
 }
