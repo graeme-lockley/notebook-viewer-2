@@ -81,4 +81,4 @@ export const renderCode = (hljs, language: string, body: string): string =>
     hljs === undefined
         ? `<pre class='nbv-unstyled-code-block'><code>${body}</code></pre>`
         : `<pre class='nbv-styled-code-block'><code class="hljs language-${language}">${hljs.highlight(body, { language }).value
-        }</pre></code>`;
+        }</code></pre>`;
