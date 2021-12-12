@@ -1,7 +1,7 @@
 import type { Cell } from "../Runtime";
 import { Inspector } from "@observablehq/inspector";
 
-export const divID = (cell: Cell, suffix?: string): string => `cell-${cell.id}${suffix === undefined ? "" : `-${suffix}`}`;
+export const divID = (cell: Cell, suffix?: string): string => `cell-${cell.id}${suffix === undefined ? '' : `-${suffix}`}`;
 
 export const updater = (elementID: string) => {
     let last = Date.now();
@@ -38,7 +38,6 @@ export const updater = (elementID: string) => {
         return moment;
     };
 
-
     return {
         update: (content: () => string | Node) => {
             updateDivLoop(snapshot(), content)
@@ -73,7 +72,6 @@ export const inspectorUpdater = (elementID: string) => {
         last = moment;
         return moment;
     };
-
 
     return {
         update: (gen: (inspector: Inspector) => void) => {

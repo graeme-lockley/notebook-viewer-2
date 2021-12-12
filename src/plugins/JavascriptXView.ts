@@ -31,8 +31,8 @@ export const javascriptXView: JavascriptXView = {
         }
 
         const viewCellID = divID(viewCell);
-        const viewID = viewCellID + '-view';
-        const codeID = viewCellID + '-code';
+        const viewID = divID(viewCell, 'view');
+        const codeID = divID(viewCell, 'code');
 
         const renderer: Renderer =
             () => renderCode(this.hljs, 'javascript', body);

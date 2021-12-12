@@ -25,8 +25,8 @@ export const javascriptX: JavascriptX = {
         cell.redefine(pr.name, pr.dependencies, pr.result);
 
         const id = divID(cell);
-        const observerID = id + '-observer';
-        const codeID = id + '-code';
+        const observerID = divID(cell, 'observer');
+        const codeID = divID(cell, 'code');
 
         const renderer: Renderer =
             () => renderCode(this.hljs, 'javascript', body);
