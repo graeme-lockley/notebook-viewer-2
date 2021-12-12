@@ -10,6 +10,8 @@ type Renderer = () => string;
 
 export const javascript: Javascript = {
     name: 'js',
+    pattern: /^(js|javascript)\s*/,
+
     hljs: undefined,
 
     setup: function (bindings: Bindings) {

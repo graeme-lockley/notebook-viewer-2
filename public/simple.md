@@ -10,7 +10,7 @@ centuary = 100
 
 This is a piece of code that is executed so you will see the value however it isn't pinned meaning you will be unable to see the calculation.
 
-``` js-x | pin
+``` js x | pin
 value = {
     const items = [1, 2, 3, 4, 5];
     const double = (x) => x + x;
@@ -21,7 +21,7 @@ value = {
 
 This code is evaluated, the result displayed and the code is made visible directly below.  What's cool is this value is reactive and dependent on `value`.
 
-``` js-x | pin
+``` js x | pin
 {
     const square = (x) => x * x;
 
@@ -31,7 +31,7 @@ This code is evaluated, the result displayed and the code is made visible direct
 
 We can also add some assertions - a simple way of adding tests into notebooks.  Let's create the artificial function `add`:
 
-``` js-x | pin
+``` js x | pin
 add = (a, b) => {
     if (a < 0 || b < 0)
         throw new Error("Precondition failed");
@@ -42,49 +42,49 @@ add = (a, b) => {
 
 Now let's add some test code.  The first test hides the code whilst the following will both show the code.
 
-``` js-x-assert Given positive values then we get the sum of both values back
+``` js x assert Given positive values then we get the sum of both values back
 add(1, 2) === 3
 ```
 
-``` js-x-assert Given a negative argument then all hell breaks loose
+``` js x assert Given a negative argument then all hell breaks loose
 add(-1, 2) === 1
 ```
 
-``` js-x-assert Given a silly mistake this test will fail
+``` js x assert Given a silly mistake this test will fail
 add(1, 2) === 2
 ```
 
 Now let's start to do something else that it is quite cool - let's input a range using a visual control from Observablehq's Input library:
 
-``` js-x-view
+``` js x view
 start = Inputs.date({label: "Start date", value: "1982-03-06T02:30"})
 ```
 
-``` js-x-view
+``` js x view
 TestIterations = Inputs.range([0, 100], {value: 20, step: 1, label: "Test Iterations"})
 ```
 
 I can now link the number of random numbers in a list using the value above:
 
-``` js-x
+``` js x
 Array(TestIterations).fill(0).map(() => (Math.random() * 100 | 0) / 100)
 ```
 
 We can also load some data:
 
-``` js-x | pin
+``` js x | pin
 athletes = load("athletes.csv").csv({typed: true});
 ```
 
 Then display that data in a table limiting the nationality to 'RSA'.
 
-``` js-x-view | pin
+``` js x view | pin
 tableRows = Inputs.table(athletes.filter(d => d.nationality === 'RSA'))
 ```
 
 From this table we can then extract out the rows that were selected:
 
-``` js-x | pin
+``` js x | pin
 tableRows
 ```
 

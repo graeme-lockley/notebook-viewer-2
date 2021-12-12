@@ -13,7 +13,7 @@ This implementation has a number of features that make it quite cool:
 
 This section is the actual `add` function and the function under test.  Rather than squashing all of the code into a single function this code is split out into multiple functions.  This splitting out has the benefit of allowing me to add some narrative around each of the embedded functions and attaching simple tests to verify and demonstrate their behavior.
 
-``` js-x | pin | export
+``` js x | pin | export
 add = (input) => {
     const tokens = input.startsWith("//") 
         ? split(input.slice(4), input[2])
@@ -28,31 +28,31 @@ add = (input) => {
 }
 ```
 
-``` js-x | pin
+``` js x | pin
 split = (input, separators) => 
     input === "" 
         ? []
         : input.split(separators)
 ```
 
-``` js-x | pin
+``` js x | pin
 isNegative = (n) => n < 0;
 ```
 
-``` js-x | pin
+``` js x | pin
 sum = (ns) =>
 	ns.reduce((x, y) => x + y, 0)
 ```
 
-``` js-x-assert Sum over an empty lists returns 0 | pin
+``` js x assert Sum over an empty lists returns 0 | pin
 sum([]) === 0
 ```
 
-``` js-x-assert Sum over a single element list returns that value | pin
+``` js x assert Sum over a single element list returns that value | pin
 sum([1]) === 1
 ```
 
-``` js-x-assert Sum over a multiple elements within a list returns their sum | pin
+``` js x assert Sum over a multiple elements within a list returns their sum | pin
 sum([1, 2, 3]) === 6
 ```
 
@@ -64,31 +64,31 @@ Before we layout the individual tests we need a handful of generators.
 
 Firstly we need a generator to give us an endless supply of numbers:
 
-``` js-x
+``` js x
 NUMBERS = () => integerInRange(-10000, 10000)
 ```
 
-``` js-x
+``` js x
 INTEGERS = () => integerInRange(-10000, 10000)
 ```
 
-``` js-x
+``` js x
 POSITIVE_INTEGERS = () => integerInRange(0, 10000)
 ```
 
 The second generator is used to create valid single character separators.
 
-``` js-x | pin
+``` js x | pin
 SEPARATORS = filter(map(() => integerInRange(32, 127), c => String.fromCharCode(c)), c => "0123456789-".indexOf(c) === -1)
 ```
 
 To give it a feel here is a collection of separators produced using this generator.
 
-``` js-x
+``` js x
 Array(50).fill(0).map(SEPARATORS)
 ```
 
-``` js-x
+``` js x
 LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
     filter(listOf(INTEGERS), ns => ns.filter(isNegative).length > 0)
 ```
@@ -97,7 +97,7 @@ LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
 
 The first scenario is a comma or newline separated string of numbers returning their sum. It is worth noting that, because `listOf` will return an empty list as well as lists that contain a single element, the scenarios of the empty string and a single value are encapsulated within this scenario.
 
-``` js-x-assert Comma or newline separated string of numbers will return the sum
+``` js x assert Comma or newline separated string of numbers will return the sum
 forall(listOf(POSITIVE_INTEGERS), (ns) =>
     add(joinString(ns, [",", "\n"])) === sum(ns)
 )
@@ -105,7 +105,7 @@ forall(listOf(POSITIVE_INTEGERS), (ns) =>
 
 The second scenario is a user selected character separates numbers.
 
-``` js-x-assert Numbers separated with a custom single character separator returns the sum
+``` js x assert Numbers separated with a custom single character separator returns the sum
 forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
     add(`//${sep}\n${joinString(ns, [sep])}`) === sum(ns)
 )
@@ -113,7 +113,7 @@ forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
 
 The third scenario is, if there are any negative integers, then an exception must be thrown containing all of the negatives.
 
-``` js-x-assert Numbers with at least one negative should throw an exception listing all of the negatives
+``` js x assert Numbers with at least one negative should throw an exception listing all of the negatives
 forall(LIST_OF_INTEGERS_WITH_ONE_NEGATIVE, (ns) =>
     catchException(() => add(ns.join(","))) === ns.filter(n => n < 0).join(", ")
 )
@@ -121,7 +121,7 @@ forall(LIST_OF_INTEGERS_WITH_ONE_NEGATIVE, (ns) =>
 
 The function `joinString` is a useful helper accepting a list of values (`ns`) and a list of separators (`seps`) returning a string composed by joining all of the values together whilst randomly choosing an element from the separators and placing it between every two elements
 
-``` js-x
+``` js x
 joinString = (ns, seps) =>
 	ns.length === 0 ? ""
 	: ns.length === 1 ? ns[0].toString()
@@ -132,26 +132,26 @@ joinString = (ns, seps) =>
 
 The following are the functions that collectively make up the generative testing framework.  A generator is a [thunk](https://en.wikipedia.org/wiki/Thunk) which, when invoked, will return a value.  Using the function `integerInRange` we can create a thunk called `numbers` which, when called, will return a value in the range 0 to 1000 inclusive:
 
-``` js-x | pin
+``` js x | pin
 numbers = () => integerInRange(0, 1000)
 ```
 
 To show how this can work we can call this generator 20 times and get a list of random numbers:
 
-``` js-x | pin
+``` js x | pin
 Array(20).fill(0).map(numbers)
 ```
 
 Returning to `integerInRange` it returns a random number in the range (inclusive) of the two passed arguments.
 
-``` js-x | pin
+``` js x | pin
 integerInRange = (min, max) =>
 	Math.floor(Math.random() * (max - min + 1)) + min
 ```
 
 From that we can define the `forall` function which accepts a generator and a predicate.  This function produces ${TEST_ITERATIONS} value(s) using `gen` and then applies this value to the predicate `p`.  If this application returns `false` then an exception is thrown otherwise this function returns `true`.
 
-``` js-x | pin
+``` js x | pin
 forall = (gen, p) => {
   let lp = 0;
   while (lp < TEST_ITERATIONS) {
@@ -166,7 +166,7 @@ forall = (gen, p) => {
 }
 ```
 
-``` js-x | pin
+``` js x | pin
 forall2 = (gen1, gen2, p) => {
   let lp = 0;
   while (lp < TEST_ITERATIONS) {
@@ -188,14 +188,14 @@ We are now able to produce a collection of generator composition functions.
 
 Given a generator, `listOf` will return a generator which, when applied, will return a list consisting of 0 to ${DEFAULT_LIST_LENGTH} elements.  Each element is created using the passed generator.
 
-``` js-x | viewof
+``` js x | viewof
 // DEFAULT_LIST_LENGTH = Inputs.range([1, 10000], {value: 10, step: 1, label: "List Length"})
 DEFAULT_LIST_LENGTH = 10
 ```
 
-``` js-x | pin
+``` js x | pin
 listOf = (gen) =>
-	() => {
+  () => {
     const length = integerInRange(0, DEFAULT_LIST_LENGTH);
     return Array(length).fill(0).map(gen);
   }
@@ -203,14 +203,14 @@ listOf = (gen) =>
 
 Given a generator and a mapping function, `map` will transform each generated value using the mapping function.
 
-``` js-x | pin
+``` js x | pin
 map = (gen, f) =>
   () => f(gen())
 ```
 
 Given a generator and a predicate, `filter` will produce values from the generator which return true when applied to the predicate.
 
-``` js-x | pin
+``` js x | pin
 filter = (gen, p) => () => {
   let lp = 0;
   while (true) {
@@ -230,7 +230,7 @@ filter = (gen, p) => () => {
 
 Given a thunk, `catchException` will call the thunk, catch any exceptions that the thunk raises and returns the exception.  It has the added feature that if the thunk did not raise an exception then it'll raise it's owns exception.
 
-``` js-x
+``` js x
 catchException = (thunk) => {
     try {
         thunk();
@@ -241,8 +241,7 @@ catchException = (thunk) => {
 }
 ```
 
-``` js-x | viewof
+``` js x | viewof
 // TEST_ITERATIONS = Inputs.range([1, 100000], {value: 1000, step: 1, label: "Test Iterations"})
 TEST_ITERATIONS = 1000
 ```
-

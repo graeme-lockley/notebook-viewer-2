@@ -11,6 +11,8 @@ type Renderer = () => string;
 
 export const javascriptXView: JavascriptXView = {
     name: 'js-x-view',
+    pattern: /^(js|javascript)\s+x\s+view\s*/,
+
     hljs: undefined,
 
     setup: function (bindings: Bindings) {

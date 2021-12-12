@@ -11,6 +11,8 @@ type Renderer = () => string;
 
 export const javascriptXAssert: JavascriptXAssert = {
     name: 'js-x-assert',
+    pattern: /^(js|javascript)\s+x\s+assert\s*/,
+
     hljs: undefined,
 
     setup: function (bindings: Bindings) {
