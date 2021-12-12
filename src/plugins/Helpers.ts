@@ -6,17 +6,27 @@ export const divID = (cell: Cell, suffix?: string): string => `cell-${cell.id}${
 export const updater = (elementID: string) => {
     let last = Date.now();
 
-    const updateDiv = (moment: number, content: () => string) => {
+    const updateDiv = (moment: number, content: () => string | Node) => {
         const element = document.getElementById(elementID);
 
         if (element === null) return false;
         else if (last === moment) {
-            element.innerHTML = content();
+            const c = content();
+
+            if (c instanceof Node) {
+                element.childNodes.forEach((child) =>
+                    element.removeChild(child)
+                );
+                
+                element.appendChild(c);
+            }
+            else
+                element.innerHTML = c;
             return true;
         } else return true;
     };
 
-    const updateDivLoop = (moment: number, content: () => string) => {
+    const updateDivLoop = (moment: number, content: () => string | Node) => {
         Promise.resolve(updateDiv(moment, content)).then((r) => {
             if (!r) delay(100).then(() => updateDivLoop(moment, content));
         });
@@ -30,7 +40,7 @@ export const updater = (elementID: string) => {
 
 
     return {
-        update: (content: () => string) => {
+        update: (content: () => string | Node) => {
             updateDivLoop(snapshot(), content)
         }
     }

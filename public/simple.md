@@ -56,11 +56,11 @@ add(1, 2) === 2
 
 Now let's start to do something else that it is quite cool - let's input a range using a visual control from Observablehq's Input library:
 
-``` js x | view
+``` js-x-view
 start = Inputs.date({label: "Start date", value: "1982-03-06T02:30"})
 ```
 
-``` js x | view
+``` js-x-view
 TestIterations = Inputs.range([0, 100], {value: 20, step: 1, label: "Test Iterations"})
 ```
 
@@ -72,12 +72,21 @@ Array(TestIterations).fill(0).map(() => (Math.random() * 100 | 0) / 100)
 
 We can also load some data:
 
-``` js-x
+``` js-x | pin
 athletes = load("athletes.csv").csv({typed: true});
 ```
 
-``` js x | view
-Inputs.table(athletes.filter(d => d.nationality === 'RSA'))
+Then display that data in a table limiting the nationality to 'RSA'.
+
+``` js-x-view | pin
+tableRows = Inputs.table(athletes.filter(d => d.nationality === 'RSA'))
 ```
 
-Then some more text just to separate it all out...
+From this table we can then extract out the rows that were selected:
+
+``` js-x | pin
+tableRows
+```
+
+Now let's add a graphviz picture!
+

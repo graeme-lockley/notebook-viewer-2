@@ -8,8 +8,6 @@ interface JavascriptX extends Plugin {
     hljs: any | undefined;
 }
 
-type CodeRenderer = (code: string) => string;
-
 export const javascriptX: JavascriptX = {
     name: 'js-x',
     hljs: undefined,
