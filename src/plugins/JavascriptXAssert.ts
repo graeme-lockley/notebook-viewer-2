@@ -35,7 +35,9 @@ export const javascriptXAssert: JavascriptXAssert = {
         const variableObserver: Observer =
             observer(id, options.get('js-x-assert'), options.has('pin'), renderer);
 
-        module.variable(variableObserver).define(pr.name, pr.dependencies, pr.result);
+        module
+            .variable(variableObserver)
+            .define(pr.name, pr.dependencies, pr.result);
 
         return `<div id='${id}' class='nbv-js-x-assert'>Nothing to show</div>`;
     }

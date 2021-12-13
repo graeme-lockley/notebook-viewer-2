@@ -35,7 +35,9 @@ export const javascriptX: JavascriptX = {
         const variableObserver =
             observer(observerID, codeID, pr.name, options.has('pin'), renderer);
 
-        module.variable(variableObserver).define(pr.name, pr.dependencies, pr.result);
+        module
+            .variable(variableObserver)
+            .define(pr.name, pr.dependencies, pr.result);
 
         return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
     }
