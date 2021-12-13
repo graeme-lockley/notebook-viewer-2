@@ -1,12 +1,12 @@
 # String Calculator Kata
 
-I have enjoyed this kata and seen many implementations from junior to experienced engineers.  I love it when peeps perform this kata as a live coding experience; if you have not attempted this as a live coding experience then give it a go.  You will be surprised how doing so tends to cause your brain to turn to mush and you quickly become self conscious with respect to your typing skills.
+I enjoy the [String Calculator Kata](https://osherove.com/tdd-kata-1) and have seen many implementations done by a range of skilled people.  I love it when peeps perform this kata as a live coding experience; if you have not attempted this as a live coding experience then give it a go.  You will be surprised how doing so tends to cause your brain to turn to mush and you quickly become self conscious with respect to your typing skills.
 
 This version of the kata will be a little different in that I am showing off a single implementation written as this note.  As I have developed this note I have constantly gone back and refactored the note so that it can be read once as a coherent narrative.
 
 This implementation has a number of features that make it quite cool:
 
-- The tests are written as generative tests - in other words these tests generate data and validate that `add` returns the expected results based on generated data.
+- The tests are written as generative tests - in other words these tests generate data and validate that `add` returns the expected results based on this data.
 - The tests are reactive meaning that variables can be changed and the entire test suite is automatically re-run.
 
 ## `add`
@@ -15,8 +15,8 @@ This section is the actual `add` function and the function under test.  Rather t
 
 ``` js x | pin | export
 add = (input) => {
-    const tokens = input.startsWith("//") 
-        ? split(input.slice(4), input[2])
+    const tokens = input.startsWith("//[") ? tokenizeMultiCharacters(input)
+        : input.startsWith("//") ? split(input.slice(4), input[2])
         : split(input, /[,\n]/);
 
     const numbers = tokens.map(t => parseInt(t));
@@ -27,6 +27,28 @@ add = (input) => {
         return sum(numbers);
 }
 ```
+
+``` js x | pin
+tokenizeMultiCharacters = (input) => {
+  const indexOfNewline =
+    input.indexOf("\n");
+
+  const escapeRE = text =>
+    text.replace(/[*+|(){}\\.^$?]/g, "\\$&");
+
+  const separators =
+    input
+      .substr(3, indexOfNewline - 4)
+      .split("][")
+      .sort((x, y) => y.length - x.length)
+      .map(escapeRE)
+      .join("|");
+
+  return split(input.slice(indexOfNewline + 1), new RegExp(separators));
+}
+```
+
+The split function deals with the *empty string* scenario.  This became interesting is all scenarios and not just *comma or newline separators* but also *custom single character* and *multiple multi-character*.
 
 ``` js x | pin
 split = (input, separators) => 
@@ -62,32 +84,95 @@ Before we layout the individual tests we need a handful of generators.
 
 ### Generators
 
-Firstly we need a generator to give us an endless supply of numbers:
+Firstly we need a generator to give us an endless supply of integers - well they are not actually integers but rather an integer values in the range ${tex`-1500...1500`}.
 
 ``` js x
-NUMBERS = () => integerInRange(-10000, 10000)
+INTEGERS = () => integerInRange(-1500, 1500)
 ```
+
+``` js x view
+{
+  const content = Array(100).fill(0).map((_, i) => ({x: i + 1, y: INTEGERS()}));
+
+  return Plot.plot({
+    marks: [
+      Plot.ruleY([0]),
+      Plot.barY(content, {x: "x", y: "y", fill: "#bab0ab"})
+    ], 
+    y: {
+      grid: true,
+      label: 'value'
+    },
+    x: {
+      label: null
+    },
+    width: width,
+    height: 250
+  })
+}
+```
+
+Secondly we require a generator that provides positive integers only.  As above this is a is limited to the range ${tex`0...1500}.
 
 ``` js x
-INTEGERS = () => integerInRange(-10000, 10000)
+POSITIVE_INTEGERS = () => integerInRange(0, 1500)
+```
+``` js x view
+{
+  const content = Array(100).fill(0).map((_, i) => ({x: i + 1, y: POSITIVE_INTEGERS()}));
+
+  return Plot.plot({
+    marks: [
+      Plot.ruleY([0]),
+      Plot.barY(content, {x: "x", y: "y", fill: "#bab0ab"})
+    ], 
+    y: {
+      grid: true,
+      label: 'value'
+    },
+    x: {
+      label: null
+    },
+    width: width,
+    height: 250
+  })
+}
 ```
 
-``` js x
-POSITIVE_INTEGERS = () => integerInRange(0, 10000)
-```
-
-The second generator is used to create valid single character separators.
+Thirdly we need a generator for valid single character separators.
 
 ``` js x | pin
-SEPARATORS = filter(map(() => integerInRange(32, 127), c => String.fromCharCode(c)), c => "0123456789-".indexOf(c) === -1)
+SEPARATORS = filter(map(() => integerInRange(32, 65535), c => String.fromCharCode(c)), c => "0123456789-[".indexOf(c) === -1)
 ```
-
-To give it a feel here is a collection of separators produced using this generator.
 
 ``` js x
-Array(50).fill(0).map(SEPARATORS)
+Array(100).fill(0).map(SEPARATORS)
 ```
 
+We can use this generator to create a multi-character separator.
+
+``` js x | pin
+MULTI_CHARACTER_SEPARATORS = map(nonEmptyListOf(SEPARATORS), (seps) => seps.join(''))
+```
+``` js x
+Array(100).fill(0).map(MULTI_CHARACTER_SEPARATORS)
+```
+
+We can use this one again to create a non-empty list of multi-character separators.
+
+``` js x | pin
+LIST_OF_MULTI_CHARACTER_SEPARATORS = nonEmptyListOf(MULTI_CHARACTER_SEPARATORS)
+```
+``` js x
+Array(100).fill(0).map(LIST_OF_MULTI_CHARACTER_SEPARATORS)
+```
+
+Finally we have a collection of list generators.
+
+``` js x
+LIST_OF_POSITIVE_INTEGERS =
+    listOf(POSITIVE_INTEGERS)
+```
 ``` js x
 LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
     filter(listOf(INTEGERS), ns => ns.filter(isNegative).length > 0)
@@ -95,33 +180,33 @@ LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
 
 ### Scenarios
 
-The first scenario is a comma or newline separated string of numbers returning their sum. It is worth noting that, because `listOf` will return an empty list as well as lists that contain a single element, the scenarios of the empty string and a single value are encapsulated within this scenario.
-
-``` js x assert Comma or newline separated string of numbers will return the sum
-forall(listOf(POSITIVE_INTEGERS), (ns) =>
+``` js x assert Comma or newline separated string of positive integers will return the sum | pin
+forall(LIST_OF_POSITIVE_INTEGERS, (ns) =>
     add(joinString(ns, [",", "\n"])) === sum(ns)
 )
 ```
 
-The second scenario is a user selected character separates numbers.
-
-``` js x assert Numbers separated with a custom single character separator returns the sum
-forall2(listOf(POSITIVE_INTEGERS), SEPARATORS, (ns, sep) =>
+``` js x assert Positive integers separated with a custom single character separator returns the sum | pin
+forall2(LIST_OF_POSITIVE_INTEGERS, SEPARATORS, (ns, sep) =>
     add(`//${sep}\n${joinString(ns, [sep])}`) === sum(ns)
 )
 ```
 
-The third scenario is, if there are any negative integers, then an exception must be thrown containing all of the negatives.
-
-``` js x assert Numbers with at least one negative should throw an exception listing all of the negatives
+``` js x assert Integers with at least one negative should throw an exception listing all of the negatives | pin
 forall(LIST_OF_INTEGERS_WITH_ONE_NEGATIVE, (ns) =>
     catchException(() => add(ns.join(","))) === ns.filter(n => n < 0).join(", ")
 )
 ```
 
+``` js x assert Positive integers separated with multiple multi-character separator should return the sum | pin
+forall2(LIST_OF_POSITIVE_INTEGERS, LIST_OF_MULTI_CHARACTER_SEPARATORS, (ns, seps) =>
+    add(`//[${seps.join('][')}]\n${joinString(ns, seps)}`) === sum(ns)
+)
+```
+
 The function `joinString` is a useful helper accepting a list of values (`ns`) and a list of separators (`seps`) returning a string composed by joining all of the values together whilst randomly choosing an element from the separators and placing it between every two elements
 
-``` js x
+``` js x | pin
 joinString = (ns, seps) =>
 	ns.length === 0 ? ""
 	: ns.length === 1 ? ns[0].toString()
@@ -186,16 +271,20 @@ forall2 = (gen1, gen2, p) => {
 
 We are now able to produce a collection of generator composition functions.
 
-Given a generator, `listOf` will return a generator which, when applied, will return a list consisting of 0 to ${DEFAULT_LIST_LENGTH} elements.  Each element is created using the passed generator.
-
-``` js x view
-DEFAULT_LIST_LENGTH = Inputs.range([1, 100], {value: 10, step: 1, label: "Maximum Generated List Length"})
-```
+Given a generator, `listOf` and `nonEmptyListOf` will return a generator which, when applied, will return a list consisting of at least 0 or 1 and at most ${DEFAULT_LIST_LENGTH} elements.  Each element is created using the passed generator.
 
 ``` js x | pin
 listOf = (gen) =>
   () => {
     const length = integerInRange(0, DEFAULT_LIST_LENGTH);
+    return Array(length).fill(0).map(gen);
+  }
+```
+
+``` js x | pin
+nonEmptyListOf = (gen) =>
+  () => {
+    const length = integerInRange(1, DEFAULT_LIST_LENGTH);
     return Array(length).fill(0).map(gen);
   }
 ```
@@ -229,7 +318,7 @@ filter = (gen, p) => () => {
 
 Given a thunk, `catchException` will call the thunk, catch any exceptions that the thunk raises and returns the exception.  It has the added feature that if the thunk did not raise an exception then it'll raise it's owns exception.
 
-``` js x
+``` js x | pin
 catchException = (thunk) => {
     try {
         thunk();
@@ -240,7 +329,10 @@ catchException = (thunk) => {
 }
 ```
 
-``` js x | viewof
-// TEST_ITERATIONS = Inputs.range([1, 100000], {value: 1000, step: 1, label: "Test Iterations"})
-TEST_ITERATIONS = 1000
+``` js x view
+DEFAULT_LIST_LENGTH = Inputs.range([1, 100], {value: 10, step: 1, label: "Maximum generated list length"})
+```
+
+``` js x view
+TEST_ITERATIONS = Inputs.range([1, 10000], {value: 1000, step: 1, label: "Number of test iterations"})
 ```
