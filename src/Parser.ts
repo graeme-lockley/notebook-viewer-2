@@ -9,19 +9,23 @@ export interface ParseResult {
 }
 
 export const parse = (code: string): ParseResult => {
-    const ast = parseCell(code);
+    try {
+        const ast = parseCell(code);
 
-    const name = ast.id !== null && ast.id.type === "Identifier" ? ast.id.name : undefined;
-    const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
-    const dependencies = uniqueElementsInStringArray(referencedNames);
-    const body = code.slice(ast.body.start, ast.body.end);
+        const name = ast.id !== null && ast.id.type === "Identifier" ? ast.id.name : undefined;
+        const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
+        const dependencies = uniqueElementsInStringArray(referencedNames);
+        const body = code.slice(ast.body.start, ast.body.end);
 
-    const fullBody = `(${dependencies.join(", ")}) => ${body}`;
+        const fullBody = `(${dependencies.join(", ")}) => ${body}`;
 
-    // eslint-disable-next-line
-    const result = eval(fullBody);
+        // eslint-disable-next-line
+        const result = eval(fullBody);
 
-    return { name, dependencies, body, fullBody, result };
+        return { name, dependencies, body, fullBody, result };
+    } catch (e) {
+        return { name: undefined, dependencies: [], body: code, fullBody: code, result: () => { throw e; } };
+    }
 }
 
 const uniqueElementsInStringArray = (inp: Array<string>): Array<string> =>
