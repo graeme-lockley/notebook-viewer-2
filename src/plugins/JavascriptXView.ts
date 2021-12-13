@@ -1,5 +1,5 @@
 import { parse } from "../Parser";
-import type { Observer } from "../Runtime";
+import type { Observer } from "../Observer";
 import { renderCode, valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
