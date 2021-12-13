@@ -1,17 +1,17 @@
 # String Calculator Kata
 
-I enjoy the [String Calculator Kata](https://osherove.com/tdd-kata-1) and have seen many implementations done by a range of skilled people.  I love it when peeps perform this kata as a live coding experience; if you have not attempted this as a live coding experience then give it a go.  You will be surprised how doing so tends to cause your brain to turn to mush and you quickly become self conscious with respect to your typing skills.
+I enjoy the [String Calculator Kata](https://osherove.com/tdd-kata-1) and have seen many implementations done by a range of skilled people.  I love it when peeps perform this kata as a live coding experience; if you have not attempted this as a live coding experience then give it a go.  You will be surprised how doing so tends to cause your brain to turn to mush and you quickly become self-conscious concerning your typing skills.
 
 This version of the kata will be a little different in that I am showing off a single implementation written as this note.  As I have developed this note I have constantly gone back and refactored the note so that it can be read once as a coherent narrative.
 
-This implementation has a number of features that make it quite cool:
+This implementation has several of features that make it quite cool:
 
-- The tests are written as generative tests - in other words these tests generate data and validate that `add` returns the expected results based on this data.
+- The tests are written as generative tests - in other words, these tests generate data and validate that `add` returns the expected results based on this data.
 - The tests are reactive meaning that variables can be changed and the entire test suite is automatically re-run.
 
 ## `add`
 
-This section is the actual `add` function and the function under test.  Rather than squashing all of the code into a single function this code is split out into multiple functions.  This splitting out has the benefit of allowing me to add some narrative around each of the embedded functions and attaching simple tests to verify and demonstrate their behavior.
+This section is the actual `add` function and the function under test.  Rather than squashing all code into a single function this code is split out into multiple functions.  This splitting out has the benefit of allowing me to add some narrative around the embedded functions and attaching simple tests to verify and demonstrate behavior.
 
 ``` js x | pin | export
 add = (input) => {
@@ -87,12 +87,12 @@ Before we layout the individual tests we need a handful of generators.
 Firstly we need a generator to give us an endless supply of integers - well they are not actually integers but rather an integer values in the range ${tex`-1500...1500`}.
 
 ``` js x
-INTEGERS = () => integerInRange(-1500, 1500)
+INTEGERS = integerInRange(-1500, 1500)
 ```
 
 ``` js x view
 {
-  const content = Array(100).fill(0).map((_, i) => ({x: i + 1, y: INTEGERS()}));
+  const content = Array(50).fill(0).map((_, i) => ({x: i + 1, y: INTEGERS()}));
 
   return Plot.plot({
     marks: [
@@ -115,11 +115,11 @@ INTEGERS = () => integerInRange(-1500, 1500)
 Secondly we require a generator that provides positive integers only.  As above this is a is limited to the range ${tex`0...1500}.
 
 ``` js x
-POSITIVE_INTEGERS = () => integerInRange(0, 1500)
+POSITIVE_INTEGERS = integerInRange(0, 1500)
 ```
 ``` js x view
 {
-  const content = Array(100).fill(0).map((_, i) => ({x: i + 1, y: POSITIVE_INTEGERS()}));
+  const content = Array(50).fill(0).map((_, i) => ({x: i + 1, y: POSITIVE_INTEGERS()}));
 
   return Plot.plot({
     marks: [
@@ -142,7 +142,7 @@ POSITIVE_INTEGERS = () => integerInRange(0, 1500)
 Thirdly we need a generator for valid single character separators.
 
 ``` js x | pin
-SEPARATORS = filter(map(() => integerInRange(32, 65535), c => String.fromCharCode(c)), c => "0123456789-[".indexOf(c) === -1)
+SEPARATORS = filter(map(integerInRange(32, 65535), c => String.fromCharCode(c)), c => "0123456789-[".indexOf(c) === -1)
 ```
 
 ``` js x
@@ -210,7 +210,7 @@ The function `joinString` is a useful helper accepting a list of values (`ns`) a
 joinString = (ns, seps) =>
 	ns.length === 0 ? ""
 	: ns.length === 1 ? ns[0].toString()
-    : ns[0].toString() + ns.slice(1).map(v => seps[integerInRange(0, seps.length - 1)] + v.toString()).join("")
+    : ns[0].toString() + ns.slice(1).map(v => seps[integerInRange(0, seps.length - 1)()] + v.toString()).join("")
 ```
 
 ## Generative Testing Framework
@@ -218,7 +218,7 @@ joinString = (ns, seps) =>
 The following are the functions that collectively make up the generative testing framework.  A generator is a [thunk](https://en.wikipedia.org/wiki/Thunk) which, when invoked, will return a value.  Using the function `integerInRange` we can create a thunk called `numbers` which, when called, will return a value in the range 0 to 1000 inclusive:
 
 ``` js x | pin
-numbers = () => integerInRange(0, 1000)
+numbers = integerInRange(0, 1000)
 ```
 
 To show how this can work we can call this generator 20 times and get a list of random numbers:
@@ -227,11 +227,11 @@ To show how this can work we can call this generator 20 times and get a list of 
 Array(DEFAULT_LIST_LENGTH).fill(0).map(numbers)
 ```
 
-Returning to `integerInRange` it returns a random number in the range (inclusive) of the two passed arguments.
+Returning to `integerInRange` it produces a thunk which, when called, will return a random number in the inclusive range of the passed arguments.
 
 ``` js x | pin
 integerInRange = (min, max) =>
-	Math.floor(Math.random() * (max - min + 1)) + min
+	() => Math.floor(Math.random() * (max - min + 1)) + min
 ```
 
 From that we can define the `forall` function which accepts a generator and a predicate.  This function produces ${TEST_ITERATIONS} value(s) using `gen` and then applies this value to the predicate `p`.  If this application returns `false` then an exception is thrown otherwise this function returns `true`.
@@ -276,7 +276,7 @@ Given a generator, `listOf` and `nonEmptyListOf` will return a generator which, 
 ``` js x | pin
 listOf = (gen) =>
   () => {
-    const length = integerInRange(0, DEFAULT_LIST_LENGTH);
+    const length = integerInRange(0, DEFAULT_LIST_LENGTH)();
     return Array(length).fill(0).map(gen);
   }
 ```
@@ -284,7 +284,7 @@ listOf = (gen) =>
 ``` js x | pin
 nonEmptyListOf = (gen) =>
   () => {
-    const length = integerInRange(1, DEFAULT_LIST_LENGTH);
+    const length = integerInRange(1, DEFAULT_LIST_LENGTH)();
     return Array(length).fill(0).map(gen);
   }
 ```
