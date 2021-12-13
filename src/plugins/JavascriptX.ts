@@ -1,5 +1,5 @@
 import { parse } from "../Parser";
-import type { NewObserver } from "../Runtime";
+import type { Observer } from "../Runtime";
 import { valueUpdater, inspectorUpdater, renderCode } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 import type { Inspector } from "@observablehq/inspector";
@@ -32,22 +32,16 @@ export const javascriptX: JavascriptX = {
         const renderer: Renderer =
             () => renderCode(this.hljs, 'javascript', body);
 
-        const cellObserver = observer(observerID, codeID, pr.name, options.has('pin'), renderer);
+        const variableObserver =
+            observer(observerID, codeID, pr.name, options.has('pin'), renderer);
 
-        const cell = module.variable(cellObserver);
-        cell.define(pr.name, pr.dependencies, pr.result);
-
-        // const id = divID(cell);
-        // const observerID = divID(cell, 'observer');
-        // const codeID = divID(cell, 'code');
-
-        // cell.includeObserver(observer(observerID, codeID, pr.name, options.has('pin'), renderer));
+        module.variable(variableObserver).define(pr.name, pr.dependencies, pr.result);
 
         return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
     }
 };
 
-const observer = (inspectorElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): NewObserver => {
+const observer = (inspectorElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
     const inspectorControl = inspectorUpdater(inspectorElementID);
     const codeControl = valueUpdater(codeElementID);
 

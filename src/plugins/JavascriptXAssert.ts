@@ -1,5 +1,5 @@
 import { parse } from "../Parser";
-import type { NewObserver } from "../Runtime";
+import type { Observer } from "../Runtime";
 import { renderCode, valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
@@ -32,19 +32,16 @@ export const javascriptXAssert: JavascriptXAssert = {
         const renderer: Renderer =
             () => renderCode(this.hljs, 'javascript', body);
 
-        const cellObserver: NewObserver =
+        const variableObserver: Observer =
             observer(id, options.get('js-x-assert'), options.has('pin'), renderer);
 
-        const cell =
-            module.variable(cellObserver);
-
-        cell.define(pr.name, pr.dependencies, pr.result);
+        module.variable(variableObserver).define(pr.name, pr.dependencies, pr.result);
 
         return `<div id='${id}' class='nbv-js-x-assert'>Nothing to show</div>`;
     }
 };
 
-const observer = (elementID: string, name: string | undefined, pin: boolean, renderer: Renderer): NewObserver => {
+const observer = (elementID: string, name: string | undefined, pin: boolean, renderer: Renderer): Observer => {
     const update = valueUpdater(elementID);
 
     return {

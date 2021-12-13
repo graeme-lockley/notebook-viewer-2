@@ -1,5 +1,5 @@
 import { parse } from "../Parser";
-import type { NewObserver } from "../Runtime";
+import type { Observer } from "../Runtime";
 import { renderCode, valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
@@ -31,26 +31,30 @@ export const javascriptXView: JavascriptXView = {
         const renderer: Renderer =
             () => renderCode(this.hljs, 'javascript', body);
 
-        const cellObserver: NewObserver =
+        const variableObserver: Observer =
             observer(viewID, codeID, pr.name, options.has('pin'), renderer)
 
-        const viewCell =
-            module.variable(cellObserver);
-
-        if (pr.name === undefined) {
-            viewCell.define(pr.name, pr.dependencies, pr.result);
-        } else {
+        if (pr.name === undefined)
+            module
+                .variable(variableObserver)
+                .define(pr.name, pr.dependencies, pr.result);
+        else {
             const viewCellName = `${pr.name}$$`;
-            const valueCell = module.variable();
-            viewCell.define(viewCellName, pr.dependencies, pr.result);
-            valueCell.define(pr.name, [viewCellName], eval(`(${viewCellName}) => Generators.input(${viewCellName})`));
+
+            module
+                .variable(variableObserver)
+                .define(viewCellName, pr.dependencies, pr.result);
+
+            module
+                .variable()
+                .define(pr.name, [viewCellName], eval(`(${viewCellName}) => Generators.input(${viewCellName})`));
         }
 
         return `<div id='${viewCellID}' class='nbv-js-x-view'><div id='${viewID}'></div><div id='${codeID}'></div></div>`;
     }
 };
 
-const observer = (viewElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): NewObserver => {
+const observer = (viewElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
     const viewControl = valueUpdater(viewElementID);
     const codeControl = valueUpdater(codeElementID);
 
