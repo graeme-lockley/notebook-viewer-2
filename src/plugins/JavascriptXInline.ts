@@ -1,6 +1,6 @@
 import { parse } from "../Parser";
 import type { Observer } from "../Observer";
-import { valueUpdater, inspectorUpdater, renderCode } from "./Helpers";
+import { valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 
 interface JavascriptXInline extends Plugin {
