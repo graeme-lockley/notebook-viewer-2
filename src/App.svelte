@@ -2,6 +2,6 @@
 	import XMarkdown from "./XMarkdown.svelte";
 </script>
 
-<!-- <XMarkdown sourceURL="simple.md" /> -->
-<XMarkdown sourceURL="sck.md" />
+<XMarkdown sourceURL="simple.md" />
+<!-- <XMarkdown sourceURL="sck.md" /> -->
 <!-- <XMarkdown sourceURL="d3-scatterplot.md" /> -->

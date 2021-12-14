@@ -2,7 +2,7 @@
 
 This section contains basic reactive elements.
 
-This is just a formatted piece of code rendered verbatim without an calculation.
+This is just a formatted piece of code rendered verbatim ${tex`E=mc^{${TestIterations}}`} that has a newline without an calculation.
 
 ``` js
 centuary = 100
@@ -19,7 +19,9 @@ value = {
 }
 ```
 
-This code is evaluated, the result displayed and the code is made visible directly below.  What's cool is this value is reactive and dependent on `value`.
+This code is evaluated, the result displayed and the code is made visible directly below.  What's cool is this value is reactive and dependent on `value` - ${value[0] 
+*
+2}.
 
 ``` js x | pin
 {
@@ -27,6 +29,10 @@ This code is evaluated, the result displayed and the code is made visible direct
 
     return value.map(square);
 }
+```
+
+``` pikchr x
+circle
 ```
 
 We can also add some assertions - a simple way of adding tests into notebooks.  Let's create the artificial function `add`:

@@ -48,7 +48,7 @@ tokenizeMultiCharacters = (input) => {
 }
 ```
 
-The split function deals with the *empty string* scenario.  This became interesting is all scenarios and not just *comma or newline separators* but also *custom single character* and *multiple multi-character*.
+The split function deals with the *empty string* scenario.  This scenario is relevant to all scenarios and not just *comma or newline separators* but also *custom single character* and *multiple multi-character*.
 
 ``` js x | pin
 split = (input, separators) => 
