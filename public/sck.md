@@ -84,7 +84,7 @@ Before we layout the individual tests we need a handful of generators.
 
 ### Generators
 
-Firstly we need a generator to give us an endless supply of integers - well they are not actually integers but rather an integer values in the range ${tex`-1500...1500`}.
+Firstly we need a generator to give us an endless supply of integers - well they are not actually integers but rather integer values in the range ${tex`-1500...1500`}.
 
 ``` js x
 INTEGERS = integerInRange(-1500, 1500)
@@ -101,7 +101,7 @@ INTEGERS = integerInRange(-1500, 1500)
     ], 
     y: {
       grid: true,
-      label: 'value'
+      label: null
     },
     x: {
       label: null
@@ -112,11 +112,12 @@ INTEGERS = integerInRange(-1500, 1500)
 }
 ```
 
-Secondly we require a generator that provides positive integers only.  As above this is a is limited to the range ${tex`0...1500}.
+Secondly we require a generator that provides positive integers only.  As above this is limited to the range ${tex`0 \dots 1500`}.
 
 ``` js x
 POSITIVE_INTEGERS = integerInRange(0, 1500)
 ```
+
 ``` js x view
 {
   const content = Array(50).fill(0).map((_, i) => ({x: i + 1, y: POSITIVE_INTEGERS()}));
@@ -128,7 +129,7 @@ POSITIVE_INTEGERS = integerInRange(0, 1500)
     ], 
     y: {
       grid: true,
-      label: 'value'
+      label: null
     },
     x: {
       label: null
@@ -142,7 +143,13 @@ POSITIVE_INTEGERS = integerInRange(0, 1500)
 Thirdly we need a generator for valid single character separators.
 
 ``` js x | pin
-SEPARATORS = filter(map(integerInRange(32, 65535), c => String.fromCharCode(c)), c => "0123456789-[".indexOf(c) === -1)
+SEPARATORS = 
+    filter(map(integerInRange(0, SEPARATOR_UPPER_RANGE), c => String.fromCharCode(c)), c => "0123456789-\n[".indexOf(c) === -1)
+```
+
+``` js x view
+SEPARATOR_UPPER_RANGE = 
+    Inputs.range([0, 65535], {value: 255, step: 1, label: "Upper separator range"})
 ```
 
 ``` js x
@@ -152,8 +159,10 @@ Array(100).fill(0).map(SEPARATORS)
 We can use this generator to create a multi-character separator.
 
 ``` js x | pin
-MULTI_CHARACTER_SEPARATORS = map(nonEmptyListOf(SEPARATORS), (seps) => seps.join(''))
+MULTI_CHARACTER_SEPARATORS = 
+    map(nonEmptyListOf(SEPARATORS), (seps) => seps.join(''))
 ```
+
 ``` js x
 Array(100).fill(0).map(MULTI_CHARACTER_SEPARATORS)
 ```
@@ -161,7 +170,8 @@ Array(100).fill(0).map(MULTI_CHARACTER_SEPARATORS)
 We can use this one again to create a non-empty list of multi-character separators.
 
 ``` js x | pin
-LIST_OF_MULTI_CHARACTER_SEPARATORS = nonEmptyListOf(MULTI_CHARACTER_SEPARATORS)
+LIST_OF_MULTI_CHARACTER_SEPARATORS = 
+    nonEmptyListOf(MULTI_CHARACTER_SEPARATORS)
 ```
 ``` js x
 Array(100).fill(0).map(LIST_OF_MULTI_CHARACTER_SEPARATORS)
@@ -169,11 +179,11 @@ Array(100).fill(0).map(LIST_OF_MULTI_CHARACTER_SEPARATORS)
 
 Finally we have a collection of list generators.
 
-``` js x
+``` js x | pin
 LIST_OF_POSITIVE_INTEGERS =
     listOf(POSITIVE_INTEGERS)
 ```
-``` js x
+``` js x | pin
 LIST_OF_INTEGERS_WITH_ONE_NEGATIVE =
     filter(listOf(INTEGERS), ns => ns.filter(isNegative).length > 0)
 ```
@@ -218,7 +228,8 @@ joinString = (ns, seps) =>
 The following are the functions that collectively make up the generative testing framework.  A generator is a [thunk](https://en.wikipedia.org/wiki/Thunk) which, when invoked, will return a value.  Using the function `integerInRange` we can create a thunk called `numbers` which, when called, will return a value in the range 0 to 1000 inclusive:
 
 ``` js x | pin
-numbers = integerInRange(0, 1000)
+numbers = 
+    integerInRange(0, 1000)
 ```
 
 To show how this can work we can call this generator 20 times and get a list of random numbers:
@@ -299,19 +310,20 @@ map = (gen, f) =>
 Given a generator and a predicate, `filter` will produce values from the generator which return true when applied to the predicate.
 
 ``` js x | pin
-filter = (gen, p) => () => {
-  let lp = 0;
-  while (true) {
-    const result = gen();
-    if (p(result))
-      return result;
+filter = (gen, p) => 
+  () => {
+    let lp = 0;
+    while (true) {
+      const result = gen();
+      if (p(result))
+        return result;
 
-    lp += 1;
-    if (lp > 100) {
-      throw new Error("Filter failed: too many iterations");
+      lp += 1;
+      if (lp > 100) {
+        throw new Error("Filter failed: too many iterations");
+      }
     }
   }
-}
 ```
 
 ### Helper Functions
@@ -320,19 +332,21 @@ Given a thunk, `catchException` will call the thunk, catch any exceptions that t
 
 ``` js x | pin
 catchException = (thunk) => {
-    try {
-        thunk();
-        throw new Error("No exception raised in catchException");
-    } catch (e) {
-        return e;
-    }
+  try {
+    thunk();
+    throw new Error("No exception raised in catchException");
+  } catch (e) {
+    return e;
+  }
 }
 ```
 
 ``` js x view
-DEFAULT_LIST_LENGTH = Inputs.range([1, 100], {value: 10, step: 1, label: "Maximum generated list length"})
+DEFAULT_LIST_LENGTH = 
+    Inputs.range([1, 100], {value: 10, step: 1, label: "Maximum generated list length"})
 ```
 
 ``` js x view
-TEST_ITERATIONS = Inputs.range([1, 10000], {value: 1000, step: 1, label: "Number of test iterations"})
+TEST_ITERATIONS = 
+    Inputs.range([1, 10000], {value: 10000, step: 1, label: "Number of test iterations"})
 ```

@@ -9,11 +9,11 @@ import { javascriptX } from "./plugins/JavascriptX";
 import { javascriptXAssert } from "./plugins/JavascriptXAssert";
 import { javascriptXInline } from "./plugins/JavascriptXInline";
 import { javascriptXView } from "./plugins/JavascriptXView";
-// import { pikchrX } from "./plugins/PikchrX";
+import { pikchrX } from "./plugins/PikchrX";
 
 const bindings = new Map([["hljs", hljs]]);
 const plugins = [
-    // pikchrX,
+    pikchrX,
     javascriptXAssert,
     javascriptXView,
     javascriptXInline,

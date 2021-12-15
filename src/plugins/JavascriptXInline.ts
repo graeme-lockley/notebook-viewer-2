@@ -26,7 +26,7 @@ export const javascriptXInline: JavascriptXInline = {
             try {
                 const pr = parse(body);
 
-                const id = `js-x-${javascriptX_count++}`;
+                const id = `js-x-inline-${javascriptX_count++}`;
 
                 const variableObserver =
                     observer(id);
