@@ -43,6 +43,3 @@
 {#await fetch(sourceURL).then((r) => r.text()) then text}
     {@html markedParser(text)}
 {/await}
-
-
-
