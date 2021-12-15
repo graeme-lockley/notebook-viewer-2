@@ -38,7 +38,6 @@ export const pikchrX: PikchrX = {
             const svg = pik(body, "pikchr", 0, 1, 1);
             const m = svg.match(/viewBox=\"([0-9.]+) ([0-9.]+) ([0-9.]+) ([0-9.]+)\"/)
             
-            const svgp = svg.replace('"pikchr"', '"pikchr" width="100%" height="100%"');
             observerUpdated(m === null ? svg : svg.replace(`"pikchr"', '"pikchr" width="${m[3]}" height="${m[4]}"`));
         });
 
