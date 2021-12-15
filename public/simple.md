@@ -5,7 +5,7 @@ This section contains basic reactive elements.
 This is just a formatted piece of code rendered verbatim ${tex`E=mc^{${TestIterations}}`} that has a newline without an calculation.
 
 ``` js
-centuary = 100
+century = 100
 ```
 
 This is a piece of code that is executed so you will see the value however it isn't pinned meaning you will be unable to see the calculation.
