@@ -38,17 +38,6 @@
         console.log("Destryoing runtime");
         runtime.dispose();
     };
-
-    // Promise.all([library.md(), fetch(sourceURL).then((r) => r.text())]).then(
-    //     ([md, text]) => {
-    //         const element = document.getElementById("root");
-    //         console.log(md);
-    //         console.log(text);
-    //         const output = md([text]);
-    //         console.log(output);
-    //         element.appendChild(output);
-    //        }
-    // );
 </script>
 
 {#await fetch(sourceURL).then((r) => r.text()) then text}
