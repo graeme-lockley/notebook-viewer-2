@@ -9,6 +9,7 @@ import { javascriptX } from "./plugins/JavascriptX";
 import { javascriptXAssert } from "./plugins/JavascriptXAssert";
 import { javascriptXInline } from "./plugins/JavascriptXInline";
 import { javascriptXView } from "./plugins/JavascriptXView";
+import { krokiX } from "./plugins/KrokiX";
 import { pikchrX } from "./plugins/PikchrX";
 
 const bindings = new Map([["hljs", hljs]]);
@@ -19,6 +20,7 @@ const plugins = [
     javascriptXInline,
     javascriptX,
     javascript,
+    krokiX
 ];
 plugins.filter((p) => p.setup !== undefined).map((p) => p.setup(bindings));
 

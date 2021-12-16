@@ -13,7 +13,7 @@ const pikchrRenderer = pikchr.fred;
 let pikchrX_count = 0;
 
 export const pikchrX: PikchrX = {
-    name: 'pikchr x',
+    name: 'pikchr-x',
     pattern: /^pikchr\s+x\s*/,
 
     hljs: undefined,
