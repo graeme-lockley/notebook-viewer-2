@@ -139,5 +139,3 @@ From this table we can then extract out the rows that were selected:
 ``` js x | pin
 tableRows
 ```
-
-Now let's add a graphviz picture!

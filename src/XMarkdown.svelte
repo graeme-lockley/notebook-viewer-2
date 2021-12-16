@@ -16,7 +16,8 @@
         load: () => (url: string) => new FA(url),
     });
 
-    const runtime = new Runtime(library);
+    let runtime = undefined;
+    let module = undefined;
 
     class FA extends AbstractFile {
         constructor(name: string) {
@@ -28,16 +29,20 @@
         }
     }
 
-    const module = runtime.module();
-
-    window.module = module;
-
     export let sourceURL: string;
 
-    const onDestroy = () => {
-        console.log("Destryoing runtime");
-        runtime.dispose();
-    };
+    function sourceURLChange(newValue: string) {
+        if (runtime !== undefined) {
+            runtime.dispose();
+        }
+        runtime = new Runtime(library);
+        module = runtime.module();
+        window.module = module;
+    }
+
+    $: {
+        sourceURLChange(sourceURL);
+    }
 </script>
 
 {#await fetch(sourceURL).then((r) => r.text()) then text}
