@@ -34,7 +34,7 @@ const renderer = {
         } else {
             const [plugin, is] = findResponse;
 
-            return plugin.render(module, code, is);
+            return plugin.render(this.options.nbv_module, code, is);
         }
     }
 };
@@ -79,15 +79,15 @@ const inlineExpression = {
         return undefined;
     },
     renderer(token: any) {
-        return javascriptXInline.render(module, token.body, new Map());
+        return javascriptXInline.render(this.parser.options.nbv_module, token.body, new Map());
     }
 };
 
 marked.use({ renderer, extensions: [inlineExpression] });
 
 
-export const markedParser = (text: string): string =>
-    marked.parse(text);
+export const markedParser = (text: string, module): string =>
+    marked.parse(text, { nbv_module: module });
 
 function find(
     plugins: Plugins,

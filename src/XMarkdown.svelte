@@ -37,7 +37,6 @@
         }
         runtime = new Runtime(library);
         module = runtime.module();
-        window.module = module;
     }
 
     $: {
@@ -46,5 +45,5 @@
 </script>
 
 {#await fetch(sourceURL).then((r) => r.text()) then text}
-    {@html markedParser(text)}
+    {@html markedParser(text, module)}
 {/await}
