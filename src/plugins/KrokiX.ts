@@ -1,3 +1,4 @@
+import type { Observer } from "../Observer";
 import { renderCode, valueUpdater } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 import { parseCell } from "@observablehq/parser";
@@ -50,26 +51,20 @@ export const krokiX: KrokiX = {
         const type = options.get(this.name);
 
         if (supportedDiagramTypes.has(type)) {
-            const observerUpdated = valueUpdater(observerID);
 
             /* render based on type */
             const renderer: Renderer =
                 () => renderCode(this.hljs, 'plaintext', body);
 
-            try {
-                fetch(`https://kroki.io/${type}/svg`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    body
-                })
-                    .then(response => response.text())
-                    .then(content => observerUpdated(content))
-                    .catch(error => observerUpdated(`Kroki Error: ${error}`));
-            } catch (e) {
-                observerUpdated(`Kroki Error: ${e}`);
-            }
+            const variableObserver =
+                observer(observerID, codeID, type, options.has('pin'), renderer);
+
+            const f = functionFromBody(body);
+
+            module
+                .variable(variableObserver)
+                .define(undefined, f.names, eval(f.body));
+
 
             return `<div id='${id}' class='nbv-kroki-x'><div id='${observerID}'></div>${pin ? `<div id='${codeID}'>${renderer()}</div>` : ''}</div>`;
         } else {
@@ -78,14 +73,46 @@ export const krokiX: KrokiX = {
     }
 };
 
-export const functionFromBody = (body: string): string => {
+const observer = (viewElementID: string, codeElementID: string, type: string, pin: boolean, renderer: Renderer): Observer => {
+    const viewControl = valueUpdater(viewElementID);
+    const codeControl = valueUpdater(codeElementID);
+
+    return {
+        fulfilled: function (value: any): void {
+            codeControl(pin ? renderer() : '');
+            try {
+                fetch(`https://kroki.io/${type}/svg`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: value
+                })
+                    .then(response => response.text())
+                    .then(content => viewControl(content))
+                    .catch(error => viewControl(`Kroki Error: ${error}`));
+            } catch (e) {
+                viewControl(`Kroki Error: ${e}`);
+            }
+        },
+        pending: function (): void {
+            codeControl(pin ? renderer() : '');
+        },
+        rejected: function (value?: any): void {
+            viewControl('');
+            codeControl(renderer());
+        }
+    };
+}
+
+export const functionFromBody = (body: string): { names: Array<string>, body: string } => {
     const facets = parse(body);
     const result = [];
     const names = [];
 
     let lp = 0;
     while (lp + 2 < facets.length) {
-        result.push(facets[lp]);
+        result.push(facets[lp].replace(/\\/g, '\\\\'));
 
         try {
             const code = facets[lp + 1];
@@ -94,7 +121,7 @@ export const functionFromBody = (body: string): string => {
 
             const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
             const dependencies = uniqueElementsInStringArray(referencedNames);
-            const body = code.slice(ast.body.start, ast.body.end);
+            const body = code.slice(ast.body.start, ast.body.end).replace(/\\/g, '\\\\');
 
             dependencies.forEach(s => names.push(s));
 
@@ -109,9 +136,11 @@ export const functionFromBody = (body: string): string => {
 
         lp += 2;
     }
-    result.push(facets[facets.length - 1]);
+    result.push(facets[facets.length - 1].replace(/\\/g, '\\\\'));
 
-    return `(${uniqueElementsInStringArray(names).join(", ")}) => \`${result.join('')}\``;
+    const uniqueNames = uniqueElementsInStringArray(names);
+
+    return { names: uniqueNames, body: `(${uniqueNames.join(", ")}) => \`${result.join('')}\`` };
 }
 
 const uniqueElementsInStringArray = (inp: Array<string>): Array<string> =>
