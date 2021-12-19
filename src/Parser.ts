@@ -1,4 +1,4 @@
-import { parseCell } from "@observablehq/parser/src/parse.js"
+import { parseCell } from "@observablehq/parser";
 
 export interface ParseResult {
     name?: string;
