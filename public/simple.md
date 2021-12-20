@@ -31,7 +31,7 @@ This code is evaluated, the result displayed and the code is made visible direct
 }
 ```
 
-``` pikchr x
+``` kroki x pikchr
     lineht *= 0.4
     $margin = lineht*2.5
     scale = 0.75
