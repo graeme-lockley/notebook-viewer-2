@@ -56,9 +56,7 @@ x = y * 2
 \`\`\` js x
 y = 10
 \`\`\`
-`
-
-;
+`;
 
     const runtime = new Runtime();
     const module = runtime.module();
