@@ -15,8 +15,9 @@ export const valueUpdater = (elementID: string): ((content: string | Node) => vo
 
                 element.appendChild(content);
             }
-            else
+            else 
                 element.innerHTML = content;
+                
             return true;
         } else return true;
     };

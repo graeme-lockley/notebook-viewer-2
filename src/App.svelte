@@ -6,9 +6,10 @@
 		{ id: 1, text: "String Calculater Kata", resource: "sck.md" },
 		{ id: 2, text: "D3 Scatterplot", resource: "d3-scatterplot.md" },
 		{ id: 3, text: "Diagrams", resource: "kroki-diagrams.md" },
+		{ id: 4, text: "Blocks in blocks", resource: "blocks-in-blocks.md" },
 	];
 
-	let selectedID = 0;
+	let selectedID = 4;
 </script>
 
 <select id="select" bind:value={selectedID}>

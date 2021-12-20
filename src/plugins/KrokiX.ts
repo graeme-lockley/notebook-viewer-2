@@ -28,7 +28,7 @@ const supportedDiagramTypes = new Set([
     "wavedrom",
 ]);
 
-type Renderer = () => string;
+type Renderer = (code: string) => string;
 
 let krokiX_count = 0;
 
@@ -51,13 +51,12 @@ export const krokiX: KrokiX = {
         const type = options.get(this.name);
 
         if (supportedDiagramTypes.has(type)) {
-
             /* render based on type */
             const renderer: Renderer =
-                () => renderCode(this.hljs, 'plaintext', body);
+                (body: string) => renderCode(this.hljs, 'plaintext', body);
 
             const variableObserver =
-                observer(observerID, codeID, type, options.has('pin'), renderer);
+                observer(observerID, codeID, type, body, options.has('pin'), renderer);
 
             const f = functionFromBody(body);
 
@@ -66,20 +65,21 @@ export const krokiX: KrokiX = {
                 .define(undefined, f.names, eval(f.body));
 
 
-            return `<div id='${id}' class='nbv-kroki-x'><div id='${observerID}'></div>${pin ? `<div id='${codeID}'>${renderer()}</div>` : ''}</div>`;
+            return `<div id='${id}' class='nbv-kroki-x'><div id='${observerID}'></div><div id='${codeID}'>${pin ? renderer(body) : ''}</div></div>`;
         } else {
             return `<div class='nbv-kroki-x'><p>Kroki Error: Unknown Type: ${type}<p><ul>${[...supportedDiagramTypes].map(i => `<li>${i}</li>`).join("")}</ul></div>`;
         }
     }
 };
 
-const observer = (viewElementID: string, codeElementID: string, type: string, pin: boolean, renderer: Renderer): Observer => {
+const observer = (viewElementID: string, codeElementID: string, type: string, body: string, pin: boolean, renderer: Renderer): Observer => {
     const viewControl = valueUpdater(viewElementID);
     const codeControl = valueUpdater(codeElementID);
 
     return {
         fulfilled: function (value: any): void {
-            codeControl(pin ? renderer() : '');
+            codeControl(pin ? renderer(body) : '');
+            
             try {
                 fetch(`https://kroki.io/${type}/svg`, {
                     method: 'POST',
@@ -89,18 +89,28 @@ const observer = (viewElementID: string, codeElementID: string, type: string, pi
                     body: value
                 })
                     .then(response => response.text())
-                    .then(content => viewControl(content))
-                    .catch(error => viewControl(`Kroki Error: ${error}`));
+                    .then(content => {
+                        if (typeof content === "string" && content.startsWith("Error")) {
+                            viewControl(renderer(content));
+                            codeControl(renderer(value));
+                        } else
+                            viewControl(content);
+                    })
+                    .catch(error => {
+                        viewControl(`Kroki Error: ${error}`);
+                        codeControl(renderer(value));
+                    });
             } catch (e) {
                 viewControl(`Kroki Error: ${e}`);
+                codeControl(renderer(value));
             }
         },
         pending: function (): void {
-            codeControl(pin ? renderer() : '');
+            codeControl(pin ? renderer('') : '');
         },
         rejected: function (value?: any): void {
-            viewControl('');
-            codeControl(renderer());
+            viewControl(value);
+            codeControl(renderer(value));
         }
     };
 }
@@ -110,9 +120,13 @@ export const functionFromBody = (body: string): { names: Array<string>, body: st
     const result = [];
     const names = [];
 
+    const addLiteral = (text: string) => {
+        result.push(text.replace(/\\/g, '\\\\'));
+    };
+
     let lp = 0;
     while (lp + 2 < facets.length) {
-        result.push(facets[lp].replace(/\\/g, '\\\\'));
+        addLiteral(facets[lp]);
 
         try {
             const code = facets[lp + 1];
@@ -121,7 +135,7 @@ export const functionFromBody = (body: string): { names: Array<string>, body: st
 
             const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
             const dependencies = uniqueElementsInStringArray(referencedNames);
-            const body = code.slice(ast.body.start, ast.body.end).replace(/\\/g, '\\\\');
+            const body = code.slice(ast.body.start, ast.body.end);
 
             dependencies.forEach(s => names.push(s));
 
@@ -136,7 +150,7 @@ export const functionFromBody = (body: string): { names: Array<string>, body: st
 
         lp += 2;
     }
-    result.push(facets[facets.length - 1].replace(/\\/g, '\\\\'));
+    addLiteral(facets[facets.length - 1]);
 
     const uniqueNames = uniqueElementsInStringArray(names);
 
