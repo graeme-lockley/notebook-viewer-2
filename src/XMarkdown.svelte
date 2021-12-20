@@ -3,9 +3,8 @@
     import javascript_highlighter from "highlight.js/lib/languages/javascript";
     import plaintext_highlighter from "highlight.js/lib/languages/plaintext";
     import "highlight.js/styles/base16/papercolor-light.css";
-    import { AbstractFile } from "@observablehq/stdlib";
     import { Library, Runtime } from "@observablehq/runtime";
-
+    import { loadSource } from "./Import";
     import { markedParser } from "./MarkedTemplateParser";
 
     hljs.registerLanguage("javascript", javascript_highlighter);
@@ -13,21 +12,11 @@
     hljs.registerLanguage("plaintext", plaintext_highlighter);
 
     const library = Object.assign(new Library(), {
-        load: () => (url: string) => new FA(url),
+        load: () => (url: string) => loadSource(url),
     });
 
     let runtime = undefined;
     let module = undefined;
-
-    class FA extends AbstractFile {
-        constructor(name: string) {
-            super(name, name);
-        }
-
-        url() {
-            return this.name;
-        }
-    }
 
     export let sourceURL: string;
 
