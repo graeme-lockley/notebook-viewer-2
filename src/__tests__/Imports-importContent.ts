@@ -23,3 +23,23 @@ Some text
 
     expect(module._scope.size).toEqual(0);
 });
+
+test("A non-executable code block is not added to the module", () => {
+    const content = `# Heading
+
+Some text
+
+\`\`\` js
+x = 10
+\`\`\`
+
+\`\`\` kroki x svg
+\`\`\`
+`;
+
+    const runtime = new Runtime();
+    const module = runtime.module();
+    importContent(content, module);
+
+    expect(module._scope.size).toEqual(0);
+});
