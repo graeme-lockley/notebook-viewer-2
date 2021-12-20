@@ -7,9 +7,10 @@
 		{ id: 2, text: "D3 Scatterplot", resource: "d3-scatterplot.md" },
 		{ id: 3, text: "Diagrams", resource: "kroki-diagrams.md" },
 		{ id: 4, text: "Blocks in blocks", resource: "blocks-in-blocks.md" },
+		{ id: 5, text: "Playing with SVG", resource: "playing-with-svg.md" },
 	];
 
-	let selectedID = 4;
+	let selectedID = 5;
 </script>
 
 <select id="select" bind:value={selectedID}>
