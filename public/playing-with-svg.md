@@ -41,18 +41,7 @@
             .attr("transform", (r) => `rotate(${r}, 200, 100)`)
             .text("Hello world");
 
-    // text(20, 10, "Hello world", 0);
-    // text(20, 10, "Hello world", 10);
-    // text(20, 10, "Hello world", 20);
-    // text(20, 10, "Hello world", 30);
-    // text(20, 10, "Hello world", 40);
-    // text(20, 10, "Hello world", 50);
-    // text(20, 10, "Hello world", 60);
-    // text(20, 10, "Hello world", 70);
-    // text(20, 10, "Hello world", 80);
-    // text(20, 10, "Hello world", 90);
-
-    return svg.node();
+   return svg.node();
 }
 ```
 
