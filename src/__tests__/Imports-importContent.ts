@@ -43,3 +43,28 @@ x = 10
 
     expect(module._scope.size).toEqual(0);
 });
+
+test("A javascript executable code block is added to the module", async () => {
+    const content = `# Heading
+
+Some text
+
+\`\`\` js x
+x = y * 2
+\`\`\`
+
+\`\`\` js x
+y = 10
+\`\`\`
+`
+
+;
+
+    const runtime = new Runtime();
+    const module = runtime.module();
+    importContent(content, module);
+
+    expect(module._scope.size).toEqual(2);
+
+    expect(await module.value("x")).toEqual(20);
+});
