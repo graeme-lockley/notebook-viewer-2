@@ -27,7 +27,7 @@
     rect(0, 0, 200, 100);
     rect(200, 100, 200, 100);
 
-    const angles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130];
+    const angles = [...Array(8).keys()].map(n => n * 25);
 
     svg.append("g")
             .attr("font-size", "15pt")
