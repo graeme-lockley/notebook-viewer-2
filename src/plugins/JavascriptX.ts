@@ -22,24 +22,33 @@ export const javascriptX: JavascriptX = {
         this.hljs = bindings.get('hljs');
     },
 
-    render: function (module, body: string, options: Options): string | Node {
+    render: function (module, body: string, options: Options, render: boolean): string | Node {
         const pr = parse(body);
 
-        const id = `js-x-${javascriptX_count++}`;
-        const observerID = id + '-observer';
-        const codeID = id + '-code';
+        if (render) {
+            const id = `js-x-${javascriptX_count++}`;
+            const observerID = id + '-observer';
+            const codeID = id + '-code';
 
-        const renderer: Renderer =
-            () => renderCode(this.hljs, 'javascript', body);
+            const renderer: Renderer =
+                () => renderCode(this.hljs, 'javascript', body);
 
-        const variableObserver =
-            observer(observerID, codeID, pr.name, options.has('pin'), renderer);
+            const variableObserver =
+                observer(observerID, codeID, pr.name, options.has('pin'), renderer);
 
-        module
-            .variable(variableObserver)
-            .define(pr.name, pr.dependencies, pr.result);
+            module
+                .variable(variableObserver)
+                .define(pr.name, pr.dependencies, pr.result);
 
-        return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
+            return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
+        }
+        else {
+            module
+                .variable()
+                .define(pr.name, pr.dependencies, pr.result);
+                
+            return '';
+        }
     }
 };
 

@@ -1,10 +1,16 @@
 import { AbstractFile } from "@observablehq/stdlib";
+import { importParser } from "./MarkedTemplateParser";
 
-// import { Runtime } from "@observablehq/runtime";
+export const load = async (name: string) => {
+    const fetchResponse = await fetch(name);
+    const text = await fetchResponse.text();
 
-// export const load = (name: string) => {
+    return text;
+};
 
-// };
+export const importContent = (content: string, module) =>
+    importParser(content, module);
+
 
 class FA extends AbstractFile {
     name: string;

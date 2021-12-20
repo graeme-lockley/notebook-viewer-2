@@ -22,7 +22,8 @@ export const javascriptXAssert: JavascriptXAssert = {
         this.hljs = bindings.get('hljs');
     },
 
-    render: function (module, body: string, options: Options): string | Node {
+    render: function (module, body: string, options: Options, render: boolean): string | Node {
+        if (render) {
         const pr =
             parse(body);
 
@@ -40,6 +41,8 @@ export const javascriptXAssert: JavascriptXAssert = {
             .define(pr.name, pr.dependencies, pr.result);
 
         return `<div id='${id}' class='nbv-js-x-assert'>Nothing to show</div>`;
+        } else 
+        return '';
     }
 };
 

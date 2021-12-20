@@ -5,7 +5,7 @@ export interface Plugin {
     name: string;
     pattern: RegExp,
     setup?: (bindings: Bindings) => void,
-    render: (module, body: string, options: Options) => string | Node
+    render: (module, body: string, options: Options, markup: boolean) => string | Node
 }
 
 export type Plugins = Array<Plugin>;

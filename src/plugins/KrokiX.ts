@@ -42,33 +42,36 @@ export const krokiX: KrokiX = {
         this.hljs = bindings.get('hljs');
     },
 
-    render: function (module, body: string, options: Options): string | Node {
-        const id = `kroki-x-${krokiX_count++}`;
-        const observerID = id + '-value';
-        const codeID = id + '-code';
+    render: function (module, body: string, options: Options, render: boolean): string | Node {
+        if (render) {
+            const id = `kroki-x-${krokiX_count++}`;
+            const observerID = id + '-value';
+            const codeID = id + '-code';
 
-        const pin = options.has("pin");
-        const type = options.get(this.name);
+            const pin = options.has("pin");
+            const type = options.get(this.name);
 
-        if (supportedDiagramTypes.has(type)) {
-            /* render based on type */
-            const renderer: Renderer =
-                (body: string) => renderCode(this.hljs, 'plaintext', body);
+            if (supportedDiagramTypes.has(type)) {
+                /* render based on type */
+                const renderer: Renderer =
+                    (body: string) => renderCode(this.hljs, 'plaintext', body);
 
-            const variableObserver =
-                observer(observerID, codeID, type, body, options.has('pin'), renderer);
+                const variableObserver =
+                    observer(observerID, codeID, type, body, options.has('pin'), renderer);
 
-            const f = functionFromBody(body);
+                const f = functionFromBody(body);
 
-            module
-                .variable(variableObserver)
-                .define(undefined, f.names, eval(f.body));
+                module
+                    .variable(variableObserver)
+                    .define(undefined, f.names, eval(f.body));
 
 
-            return `<div id='${id}' class='nbv-kroki-x'><div id='${observerID}'></div><div id='${codeID}'>${pin ? renderer(body) : ''}</div></div>`;
-        } else {
-            return `<div class='nbv-kroki-x'><p>Kroki Error: Unknown Type: ${type}<p><ul>${[...supportedDiagramTypes].map(i => `<li>${i}</li>`).join("")}</ul></div>`;
-        }
+                return `<div id='${id}' class='nbv-kroki-x'><div id='${observerID}'></div><div id='${codeID}'>${pin ? renderer(body) : ''}</div></div>`;
+            } else {
+                return `<div class='nbv-kroki-x'><p>Kroki Error: Unknown Type: ${type}<p><ul>${[...supportedDiagramTypes].map(i => `<li>${i}</li>`).join("")}</ul></div>`;
+            }
+        } else
+            return '';
     }
 };
 
@@ -79,7 +82,7 @@ const observer = (viewElementID: string, codeElementID: string, type: string, bo
     return {
         fulfilled: function (value: any): void {
             codeControl(pin ? renderer(body) : '');
-            
+
             try {
                 fetch(`https://kroki.io/${type}/svg`, {
                     method: 'POST',

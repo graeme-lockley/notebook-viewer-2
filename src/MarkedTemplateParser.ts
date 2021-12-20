@@ -32,7 +32,7 @@ const renderer = {
         } else {
             const [plugin, is] = findResponse;
 
-            return plugin.render(this.options.nbv_module, code, is);
+            return plugin.render(this.options.nbv_module, code, is, this.options.nbv_render);
         }
     }
 };
@@ -77,7 +77,7 @@ const inlineExpression = {
         return undefined;
     },
     renderer(token: any) {
-        return javascriptXInline.render(this.parser.options.nbv_module, token.body, new Map());
+        return javascriptXInline.render(this.parser.options.nbv_module, token.body, new Map(), this.parser.options.nbv_render);
     }
 };
 
@@ -85,7 +85,10 @@ marked.use({ renderer, extensions: [inlineExpression] });
 
 
 export const markedParser = (text: string, module): string =>
-    marked.parse(text, { nbv_module: module });
+    marked.parse(text, { nbv_module: module, nbv_render: true });
+
+export const importParser = (text: string, module) =>
+    marked.parse(text, { nbv_module: module, nbv_render: false });
 
 function find(
     plugins: Plugins,

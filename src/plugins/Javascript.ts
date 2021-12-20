@@ -17,7 +17,7 @@ export const javascript: Javascript = {
         this.hljs = bindings.get('hljs');
     },
 
-    render: function (module, body: string, options: Options): string | Node {
-        return renderCode(this.hljs, 'javascript', body);
+    render: function (module, body: string, options: Options, render: boolean): string | Node {       
+        return render ? renderCode(this.hljs, 'javascript', body) : '';
     }
 };
