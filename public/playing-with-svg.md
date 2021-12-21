@@ -162,7 +162,7 @@ renderPlatform = (platform) => {
         .attr("height", height)
         .attr("fill", "lightgreen");
 
-    const label = (x, y, text) =>   
+    const label = (x, y, text, fontSize = "12pt") =>   
         svg.append("text")
             .attr("x", x)
             .attr("y", y)
@@ -181,13 +181,7 @@ renderPlatform = (platform) => {
             .attr("ry", radius)
             .attr("fill", color);
 
-        svg.append("text")
-            .attr("x", x + width/2)
-            .attr("y", y + height/2)
-            .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
-            .attr("font-size", "10pt")
-            .text(text);
+        label(x + width/2, y + height/2, text, "10pt")
     }
 
     label(horizontalWidth(numberOfColumns)/2, height/2, platform.name);
