@@ -2,15 +2,21 @@
 
 This section contains basic reactive elements.
 
-This is just a formatted piece of code rendered verbatim ${tex`E=mc^{${TestIterations}}`} that has a newline without an calculation.
+This is just a formatted piece of code rendered verbatim without any calculation.
 
 ``` js
 century = 100
 ```
 
+We can embed ${tex`\TeX`} formula into a paragraph ${tex`E=mc^{${exponent}}`} where the exponent is reactive to the below input. 
+
+``` js x view
+exponent = Inputs.range([0, 100], {value: 2, step: 1, label: "Exponent"})
+```
+
 This is a piece of code that is executed so you will see the value however it isn't pinned meaning you will be unable to see the calculation.
 
-``` js x | pin
+``` js x
 value = {
     const items = [1, 2, 3, 4, 5];
     const double = (x) => x + x;
@@ -19,9 +25,7 @@ value = {
 }
 ```
 
-This code is evaluated, the result displayed and the code is made visible directly below.  What's cool is this value is reactive and dependent on `value` - ${value[0] 
-*
-2}.
+This code is evaluated, the result displayed and the code is pinned directly below.  What's cool is this value is reactive and dependent on `value`.
 
 ``` js x | pin
 {
@@ -30,6 +34,8 @@ This code is evaluated, the result displayed and the code is made visible direct
     return value.map(square);
 }
 ```
+
+The following is a [Pikchr](https://pikchr.org/home/doc/trunk/homepage.md) diagram rendered using the [Kroki](https://kroki.io) service.  Kroki houses a number of renderers which are able to produce an SVG diagram off of a textual description.
 
 ``` kroki x pikchr
     lineht *= 0.4
@@ -136,6 +142,6 @@ tableRows = Inputs.table(athletes.filter(d => d.nationality === 'RSA'))
 
 From this table we can then extract out the rows that were selected:
 
-``` js x | pin
+``` js x
 tableRows
 ```
