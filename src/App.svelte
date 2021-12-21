@@ -9,6 +9,7 @@
 		{ id: 4, text: "Blocks in blocks", resource: "blocks-in-blocks.md" },
 		{ id: 5, text: "Playing with SVG", resource: "playing-with-svg.md" },
 		{ id: 6, text: "Basic notebook for testing", resource: "basic.md" },
+		{ id: 7, text: "Nested import", resource: "nested-import.md" },
 	];
 
 	let selectedID = 5;

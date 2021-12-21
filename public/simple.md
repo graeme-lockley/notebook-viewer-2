@@ -153,5 +153,5 @@ import { y as listLength, createList } from "./basic.md"
 ```
 
 ``` js x | pin
-createList(listLength)
+arbList = createList(listLength)
 ```
