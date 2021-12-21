@@ -66,3 +66,32 @@ y = 10
 
     expect(await module.value("x")).toEqual(20);
 });
+
+test("An imported value is visible in the module where it is referenced", async () => {
+    const runtime = new Runtime();
+
+    const importedContent = `# Heading
+Some text
+
+\`\`\` js x
+x = y * 2
+\`\`\`
+
+\`\`\` js x
+y = 10
+\`\`\`
+`;
+
+    const importedModule = runtime.module();
+    const module = runtime.module();
+
+    importContent(importedContent, importedModule);
+
+    module.variable().import("x", importedModule);
+    module.variable().define("z", ["x"], (x: number) => x * 2);
+
+    expect(module._scope.size).toEqual(2);
+
+    expect(await module.value("x")).toEqual(20);
+    expect(await module.value("z")).toEqual(40);
+});
