@@ -1,5 +1,10 @@
 import { Runtime } from "@observablehq/runtime";
 import { importContent } from "../Import";
+import fetch from "cross-fetch";
+
+if (globalThis.fetch === undefined) {
+    globalThis.fetch = fetch as any;
+}
 
 test("Empty content results in an empty module", () => {
     const content = '';
@@ -95,3 +100,29 @@ y = 10
     expect(await module.value("x")).toEqual(20);
     expect(await module.value("z")).toEqual(40);
 });
+
+test("Import a module inside a js x block", async () => {
+    const runtime = new Runtime();
+
+    const content = `# Heading
+Some text
+
+\`\`\` js x
+import { y as value, createList } from "https://graeme-lockley.github.io/notebook-viewer-2/basic.md"
+\`\`\`
+`;
+
+    const module = runtime.module();
+
+    importContent(content, module);
+
+    await delay(1000);
+
+    expect(module._scope.size).toEqual(2);
+
+    expect(await module.value("value")).toEqual(20);
+    expect((await module.value("createList"))(10).length).toEqual(10);
+});
+
+const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));

@@ -24,25 +24,29 @@ export const javascriptXAssert: JavascriptXAssert = {
 
     render: function (module, body: string, options: Options, render: boolean): string | Node {
         if (render) {
-        const pr =
-            parse(body);
+            const pr =
+                parse(body);
 
-        const id =
-            `js-x-assert-${javascriptXAssert_count++}`;
+            if (pr.type === "assignment") {
+                const id =
+                    `js-x-assert-${javascriptXAssert_count++}`;
 
-        const renderer: Renderer =
-            () => renderCode(this.hljs, 'javascript', body);
+                const renderer: Renderer =
+                    () => renderCode(this.hljs, 'javascript', body);
 
-        const variableObserver: Observer =
-            observer(id, options.get('js-x-assert'), options.has('pin'), renderer);
+                const variableObserver: Observer =
+                    observer(id, options.get('js-x-assert'), options.has('pin'), renderer);
 
-        module
-            .variable(variableObserver)
-            .define(pr.name, pr.dependencies, pr.result);
+                module
+                    .variable(variableObserver)
+                    .define(pr.name, pr.dependencies, pr.result);
 
-        return `<div id='${id}' class='nbv-js-x-assert'>Nothing to show</div>`;
-        } else 
-        return '';
+                return `<div id='${id}' class='nbv-js-x-assert'>Nothing to show</div>`;
+            }
+            else
+                return `<div class='nbv-js-x-assert'>Unable to assert against an import</div>`
+        } else
+            return '';
     }
 };
 

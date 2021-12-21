@@ -27,16 +27,20 @@ export const javascriptXInline: JavascriptXInline = {
                 try {
                     const pr = parse(body);
 
-                    const id = `js-x-inline-${javascriptX_count++}`;
+                    if (pr.type === "assignment") {
+                        const id = `js-x-inline-${javascriptX_count++}`;
 
-                    const variableObserver =
-                        observer(id);
+                        const variableObserver =
+                            observer(id);
 
-                    module
-                        .variable(variableObserver)
-                        .define(pr.name, pr.dependencies, pr.result);
+                        module
+                            .variable(variableObserver)
+                            .define(pr.name, pr.dependencies, pr.result);
 
-                    return `<span id='${id}' class='nbv-js-x-inline'></span>`;
+                        return `<span id='${id}' class='nbv-js-x-inline'></span>`;
+                    }
+                    else
+                        return `<div class='nbv-js-x-assert'>Unable to inline an import</div>`
                 } catch (e) {
                     return `<span class='nbv-js-x-inline'>${e}</span>`;
                 }

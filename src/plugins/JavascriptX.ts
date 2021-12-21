@@ -1,8 +1,9 @@
-import { parse } from "../Parser";
+import { parse, type ParseResult } from "../Parser";
 import type { Observer } from "../Observer";
 import { valueUpdater, inspectorUpdater, renderCode } from "./Helpers";
 import type { Bindings, Options, Plugin } from "./Plugin";
 import type { Inspector } from "@observablehq/inspector";
+import { importContent } from "../Import";
 
 interface JavascriptX extends Plugin {
     hljs: any | undefined;
@@ -23,31 +24,48 @@ export const javascriptX: JavascriptX = {
     },
 
     render: function (module, body: string, options: Options, render: boolean): string | Node {
-        const pr = parse(body);
+        const pr: ParseResult = parse(body);
 
-        if (render) {
-            const id = `js-x-${javascriptX_count++}`;
-            const observerID = id + '-observer';
-            const codeID = id + '-code';
+        if (pr.type === "assignment") {
+            if (render) {
+                const id = `js-x-${javascriptX_count++}`;
+                const observerID = id + '-observer';
+                const codeID = id + '-code';
 
-            const renderer: Renderer =
-                () => renderCode(this.hljs, 'javascript', body);
+                const renderer: Renderer =
+                    () => renderCode(this.hljs, 'javascript', body);
 
-            const variableObserver =
-                observer(observerID, codeID, pr.name, options.has('pin'), renderer);
+                const variableObserver =
+                    observer(observerID, codeID, pr.name, options.has('pin'), renderer);
 
-            module
-                .variable(variableObserver)
-                .define(pr.name, pr.dependencies, pr.result);
+                module
+                    .variable(variableObserver)
+                    .define(pr.name, pr.dependencies, pr.result);
 
-            return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
+                return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
+            }
+            else {
+                module
+                    .variable()
+                    .define(pr.name, pr.dependencies, pr.result);
+
+                return '';
+            }
         }
         else {
-            module
-                .variable()
-                .define(pr.name, pr.dependencies, pr.result);
-                
-            return '';
+            fetch(pr.urn).then((r) => r.text()).then((t) => {
+                const newModule = module._runtime.module();
+                importContent(t, newModule);
+
+                pr.names.forEach(({ name, alias }) => module.variable().import(name, alias, newModule));
+            }).catch(e => console.log(e));
+
+            if (render) {
+                const id = `js-x-${javascriptX_count++}`;
+
+                return `<div id='${id}' class='nbv-js-x-import'>import { ${pr.names.map(({ name, alias }) => name === alias ? alias : `${name} as ${alias}`).join(", ")} } from "${pr.urn}"</div>`;
+            } else
+                return '';
         }
     }
 };

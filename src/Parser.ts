@@ -1,6 +1,13 @@
 import { parseCell } from "@observablehq/parser";
 
-export interface ParseResult {
+export interface ImportStatement {
+    type: "import";
+    names: Array<{ name: string; alias: string }>;
+    urn: string;
+}
+
+export interface AssignmentStatement {
+    type: "assignment";
     name?: string;
     dependencies: Array<string>;
     body: string;
@@ -8,23 +15,35 @@ export interface ParseResult {
     result: () => any
 }
 
+export type ParseResult = AssignmentStatement | ImportStatement;
+
 export const parse = (code: string): ParseResult => {
     try {
         const ast = parseCell(code);
 
-        const name = ast.id !== null && ast.id.type === "Identifier" ? ast.id.name : undefined;
-        const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
-        const dependencies = uniqueElementsInStringArray(referencedNames);
-        const body = code.slice(ast.body.start, ast.body.end);
+        if (ast?.body?.type === "ImportDeclaration") {
+            const names: Array<{ name: string; alias: string }> =
+                ast.body.specifiers.map(s => ({ name: s.imported.name, alias: s.local.name }));
 
-        const fullBody = `(${dependencies.join(", ")}) => ${body}`;
+            const urn: string =
+                ast.body.source.value;
 
-        // eslint-disable-next-line
-        const result = eval(fullBody);
+            return { type: "import", names, urn };
+        } else {
+            const name = ast.id !== null && ast.id.type === "Identifier" ? ast.id.name : undefined;
+            const referencedNames = ast.references.map((dep: { name: string }) => dep.name);
+            const dependencies = uniqueElementsInStringArray(referencedNames);
+            const body = code.slice(ast.body.start, ast.body.end);
 
-        return { name, dependencies, body, fullBody, result };
+            const fullBody = `(${dependencies.join(", ")}) => ${body}`;
+
+            // eslint-disable-next-line
+            const result = eval(fullBody);
+
+            return { type: "assignment", name, dependencies, body, fullBody, result };
+        }
     } catch (e) {
-        return { name: undefined, dependencies: [], body: code, fullBody: code, result: () => { throw e; } };
+        return { type: "assignment", name: undefined, dependencies: [], body: code, fullBody: code, result: () => { throw e; } };
     }
 }
 

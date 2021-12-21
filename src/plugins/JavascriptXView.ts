@@ -24,43 +24,48 @@ export const javascriptXView: JavascriptXView = {
     render: function (module, body: string, options: Options, render: boolean): string | Node {
         const pr = parse(body);
 
-        if (render) {
-            const viewCellID = `js-x-view-${javascriptXView_count++}`;
-            const viewID = viewCellID + '-view';
-            const codeID = viewCellID + '-code';
+        if (pr.type === "assignment")
+            if (render) {
+                const viewCellID = `js-x-view-${javascriptXView_count++}`;
+                const viewID = viewCellID + '-view';
+                const codeID = viewCellID + '-code';
 
-            const renderer: Renderer =
-                () => renderCode(this.hljs, 'javascript', body);
+                const renderer: Renderer =
+                    () => renderCode(this.hljs, 'javascript', body);
 
-            const variableObserver: Observer =
-                observer(viewID, codeID, pr.name, options.has('pin'), renderer)
+                const variableObserver: Observer =
+                    observer(viewID, codeID, pr.name, options.has('pin'), renderer)
 
-            if (pr.name === undefined)
-                module
-                    .variable(variableObserver)
-                    .define(pr.name, pr.dependencies, pr.result);
+                if (pr.name === undefined)
+                    module
+                        .variable(variableObserver)
+                        .define(pr.name, pr.dependencies, pr.result);
+                else {
+                    const viewCellName = `${pr.name}$$`;
+
+                    module
+                        .variable(variableObserver)
+                        .define(viewCellName, pr.dependencies, pr.result);
+
+                    module
+                        .variable()
+                        .define(pr.name, [viewCellName], eval(`(${viewCellName}) => Generators.input(${viewCellName})`));
+                }
+
+                return `<div id='${viewCellID}' class='nbv-js-x-view'><div id='${viewID}'></div><div id='${codeID}'></div></div>`;
+            } else if (pr.name === undefined)
+                return ''
             else {
-                const viewCellName = `${pr.name}$$`;
-
-                module
-                    .variable(variableObserver)
-                    .define(viewCellName, pr.dependencies, pr.result);
-
                 module
                     .variable()
-                    .define(pr.name, [viewCellName], eval(`(${viewCellName}) => Generators.input(${viewCellName})`));
+                    .define(pr.name, [], eval(`() => undefined`));
+
+                return '';
             }
-
-            return `<div id='${viewCellID}' class='nbv-js-x-view'><div id='${viewID}'></div><div id='${codeID}'></div></div>`;
-        } else if (pr.name === undefined)
-            return ''
-        else {
-            module
-                .variable()
-                .define(pr.name, [], eval(`() => undefined`));
-
+        else if (render)
+            return `<div class='nbv-js-x-assert'>Unable to view an import</div>`
+        else
             return '';
-        }
     }
 };
 

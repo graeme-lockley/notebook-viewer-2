@@ -11,7 +11,6 @@ export const load = async (name: string) => {
 export const importContent = (content: string, module) =>
     importParser(content, module);
 
-
 class FA extends AbstractFile {
     name: string;
 
