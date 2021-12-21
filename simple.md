@@ -145,3 +145,13 @@ From this table we can then extract out the rows that were selected:
 ``` js x
 tableRows
 ```
+
+Of course we can also import variables from a notebook into this notebook.
+
+``` js x
+import { y as listLength, createList } from "./basic.md"
+```
+
+``` js x | pin
+createList(listLength)
+```
