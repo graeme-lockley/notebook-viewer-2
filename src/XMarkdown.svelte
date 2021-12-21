@@ -26,8 +26,6 @@
         }
         runtime = new Runtime(library);
         module = runtime.module();
-
-        window.mmodule = module;
     }
 
     $: {
