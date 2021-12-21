@@ -8,6 +8,7 @@
 		{ id: 3, text: "Diagrams", resource: "kroki-diagrams.md" },
 		{ id: 4, text: "Blocks in blocks", resource: "blocks-in-blocks.md" },
 		{ id: 5, text: "Playing with SVG", resource: "playing-with-svg.md" },
+		{ id: 6, text: "Basic notebook for testing", resource: "basic.md" },
 	];
 
 	let selectedID = 5;
