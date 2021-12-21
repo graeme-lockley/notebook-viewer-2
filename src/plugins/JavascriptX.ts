@@ -62,15 +62,27 @@ export const javascriptX: JavascriptX = {
 
             if (render) {
                 const id = `js-x-${javascriptX_count++}`;
+                const observerID = id + '-observer';
+                const codeID = id + '-code';
+    
+                    const renderer: Renderer =
+                    () => renderCode(this.hljs, 'javascript', body);
 
-                return `<div id='${id}' class='nbv-js-x-import'>import { ${pr.names.map(({ name, alias }) => name === alias ? alias : `${name} as ${alias}`).join(", ")} } from "${pr.urn}"</div>`;
+                const variableObserver =
+                    observer(observerID, codeID, pr.urn, options.has('pin'), renderer);
+
+                const aliases = pr.names.map(({ name, alias }) => alias);
+
+                module.variable(variableObserver).define(undefined, aliases, eval(`(${aliases.join(", ")}) => ({${aliases.join(", ")}})`));
+
+                return `<div id='${id}' class='nbv-js-x'><div id='${observerID}'></div><div id='${codeID}'></div></div>`;
             } else
                 return '';
         }
     }
 };
 
-const observer = (inspectorElementID: string, codeElementID: string, name: string, pin: boolean, renderer: Renderer): Observer => {
+const observer = (inspectorElementID: string, codeElementID: string, name: string | undefined, pin: boolean, renderer: Renderer): Observer => {
     const inspectorControl = inspectorUpdater(inspectorElementID);
     const codeControl = valueUpdater(codeElementID);
 

@@ -10,7 +10,7 @@ blockdiag {
 } 
 ```
 
-``` js x
+``` js x | pin
 import { arbList, createList, listLength } from "./simple.md"
 ```
 
