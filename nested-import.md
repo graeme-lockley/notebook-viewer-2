@@ -32,7 +32,7 @@ createList(5)
 }
 ```
 
-Finally let's show off a more complex example - pulling in the platform view where the individual views are created in a library.
+Finally let's show off a more complex example - pulling in the platform view where the individual views are created in a library.  Note that the import statement is invisible - this is intentional as it is marked with *hide* so that it is only visible in the event of an error.
 
 ```js x
 {
@@ -56,6 +56,6 @@ Finally let's show off a more complex example - pulling in the platform view whe
 }
 ```
 
-``` js x
-import {platformInto } from "./platform-components.md"
+``` js x | hide
+import { platformInto } from "./platform-components.md"
 ```
