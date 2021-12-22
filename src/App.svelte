@@ -10,9 +10,10 @@
 		{ id: 5, text: "Playing with SVG", resource: "playing-with-svg.md" },
 		{ id: 6, text: "Basic notebook for testing", resource: "basic.md" },
 		{ id: 7, text: "Nested import", resource: "nested-import.md" },
+		{ id: 8, text: "Platform Components", resource: "platform-components.md" },
 	];
 
-	let selectedID = 5;
+	let selectedID = 8;
 </script>
 
 <select id="select" bind:value={selectedID}>
