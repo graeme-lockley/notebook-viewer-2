@@ -35,7 +35,7 @@ export const javascriptXAssert: JavascriptXAssert = {
                     () => renderCode(this.hljs, 'javascript', body);
 
                 const variableObserver: Observer =
-                    observer(id, options.get('js-x-assert'), options.has('pin'), renderer);
+                    observer(id, options.get('js-x-assert'), options.has('hide'), options.has('pin'), renderer);
 
                 module
                     .variable(variableObserver)
@@ -50,18 +50,18 @@ export const javascriptXAssert: JavascriptXAssert = {
     }
 };
 
-const observer = (elementID: string, name: string | undefined, pin: boolean, renderer: Renderer): Observer => {
+const observer = (elementID: string, name: string | undefined, hide: boolean, pin: boolean, renderer: Renderer): Observer => {
     const update = valueUpdater(elementID);
 
     return {
         fulfilled: function (value: any): void {
             update(value
-                ? `<div class='nbv-passed'>${name}</div>${pin ? renderer() : ``}`
+                ? `${hide ? '' : `<div class='nbv-passed'>${name}</div>`}${pin ? renderer() : ``}`
                 : `<div class='nbv-failed'>${name}</div>${renderer()}`
             );
         },
         pending: function (): void {
-            update(`<div class='nbv-pending'>${name}</div>${pin ? renderer() : ``}`);
+            update(`${hide ? '' : `<div class='nbv-pending'>${name}</div>`}${pin ? renderer() : ``}`);
         },
         rejected: function (value?: any): void {
             update(`<div class='nbv-error-title'>${name}</div><div class='nbv-error-body'>${value}</div>${renderer()}`);

@@ -36,7 +36,7 @@ export const javascriptX: JavascriptX = {
                     () => renderCode(this.hljs, 'javascript', body);
 
                 const variableObserver =
-                    observer(observerID, codeID, pr.name, options.has('pin'), renderer);
+                    observer(observerID, codeID, pr.name, options.has('hide'), options.has('pin'), renderer);
 
                 module
                     .variable(variableObserver)
@@ -69,7 +69,7 @@ export const javascriptX: JavascriptX = {
                     () => renderCode(this.hljs, 'javascript', body);
 
                 const variableObserver =
-                    observer(observerID, codeID, pr.urn, options.has('pin'), renderer);
+                    observer(observerID, codeID, pr.urn, options.has('hide'), options.has('pin'), renderer);
 
                 const aliases = pr.names.map(({ name, alias }) => alias);
 
@@ -82,21 +82,24 @@ export const javascriptX: JavascriptX = {
     }
 };
 
-const observer = (inspectorElementID: string, codeElementID: string, name: string | undefined, pin: boolean, renderer: Renderer): Observer => {
-    const inspectorControl = inspectorUpdater(inspectorElementID);
+const observer = (inspectorElementID: string, codeElementID: string, name: string | undefined, hide: boolean, pin: boolean, renderer: Renderer): Observer => {
+    const inspectorControl = hide ? undefined : inspectorUpdater(inspectorElementID);
     const codeControl = valueUpdater(codeElementID);
 
     return {
         fulfilled: function (value: any): void {
-            inspectorControl((inspector: Inspector) => inspector.fulfilled(value, name));
+            if (!hide)
+                inspectorControl((inspector: Inspector) => inspector.fulfilled(value, name));
             codeControl(pin ? renderer() : '');
         },
         pending: function (): void {
-            inspectorControl((inspector: Inspector) => inspector.pending());
+            if (!hide)
+                inspectorControl((inspector: Inspector) => inspector.pending());
             codeControl(pin ? renderer() : '');
         },
         rejected: function (value?: any): void {
-            inspectorControl((inspector: Inspector) => inspector.rejected(value));
+            if (!hide)
+                inspectorControl((inspector: Inspector) => inspector.rejected(value));
             codeControl(renderer());
         }
     };
