@@ -208,7 +208,7 @@ mergeViewBoxInto = (svg, viewbox) => {
 }
 ```
 
-The following function is used to calculate and determine block layouts.  The strategy employed here is a top-down strategy.
+The following functions calculate block layouts.  The first uses a top-down strategy whilst the second uses a left-right strategy.
 
 ``` js x
 topDownBlockLayout = (startX, startY, blockWidth, blockHeight, padding, columnDepth, numberOfBlocks) => {
@@ -241,7 +241,42 @@ topDownBlockLayout = (startX, startY, blockWidth, blockHeight, padding, columnDe
 }
 ```
 
-Now let's put this algorithm through it's paces.  Using the sliders watch the layout in action.
+``` js x
+leftRightBlockLayout = (startX, startY, blockWidth, blockHeight, padding, rowWidth, numberOfBlocks) => {
+    if (rowWidth < 1)
+        throw {error: 'rowWidth < 1', function: 'leftRightBlockLayout', value: rowWidth};
+
+    const numberOfColumns = Math.min(numberOfBlocks, rowWidth);
+    const numberOfRows = Math.floor((numberOfBlocks + rowWidth - 1) / rowWidth);
+    const width = numberOfColumns * (blockWidth + padding) - padding;
+    const height = numberOfRows * (blockHeight + padding) - padding;
+
+    return {
+        numberOfColumns,
+        numberOfRows,
+        width,
+        height,
+
+        viewbox: [startX, startY, width + startX, height + startY],
+
+        position: (i) => {
+            const column = i % rowWidth;
+            const row = Math.floor(i / rowWidth);
+
+            const xPos = (column * (blockWidth + padding)) + startX;
+            const yPos = (row * (blockHeight + padding)) + startY;
+
+            return [xPos, yPos, xPos + blockWidth, yPos + blockHeight];
+        }
+    };
+}
+```
+
+Now let's put these algorithms through their paces.  Using the sliders watch the layout in action.
+
+``` js x view
+algorithmChoice = Inputs.radio(["left to right", "top down"], {label: "Flavor", value: "top down"})
+```
 
 ``` js x view
 numberOfBlocks = Inputs.range([0, 50], {value: 10, step: 1, label: "Number of blocks"})
@@ -260,7 +295,10 @@ paddingBetweenBlocks = Inputs.range([0, 15], {value: 5, step: 1, label: "Padding
     const svg = d3.create("svg");
 
     const blocks = Array(numberOfBlocks).fill(0).map((_, i) => `${i}`);
-    const layout = topDownBlockLayout(0, 0, 30, 20, paddingBetweenBlocks, blocksPerColumn, numberOfBlocks);
+    const layout = 
+        algorithmChoice === "left to right" 
+            ? leftRightBlockLayout(0, 0, 30, 20, paddingBetweenBlocks, blocksPerColumn, numberOfBlocks)
+            : topDownBlockLayout(0, 0, 30, 20, paddingBetweenBlocks, blocksPerColumn, numberOfBlocks);
 
     svg.append("rect")
         .attr("x", layout.viewbox[0])
