@@ -15,6 +15,11 @@ widthOfApplication = (application, options) =>
 ```
 
 ``` js x
+heightOfApplication = (application, options) =>
+    application.height || options.applicationHeight;
+```
+
+``` js x
 widthOfApplications = (applications, options) =>
     applications.length === 0 
         ? options.applicationWidth 
@@ -22,8 +27,15 @@ widthOfApplications = (applications, options) =>
 ```
 
 ``` js x
-applicationInto = (svg, x, y, application, options = {}) => {
-    options = Object.assign({}, defaultOptions, options);
+heightOfApplications = (applications, options) =>
+    applications.length === 0 
+        ? options.applicationHeight
+        : Math.max(...(applications.map(application => heightOfApplication(application, options))))
+```
+
+``` js x
+applicationInto = (svg, x, y, application, options) => {
+    options = Object.assign({}, defaultOptions, options || {});
 
     const name = application.name || options.applicationName;
     const applicationWidth = widthOfApplication(application, options);
@@ -72,8 +84,8 @@ So here are a few application examples with the code exposed:
 ## Platform
 
 ``` js x
-platformInto = (svg, x, y, platform, options = {}) => {
-    options = Object.assign({}, defaultOptions, options);
+platformInto = (svg, x, y, platform, options) => {
+    options = Object.assign({}, defaultOptions, options || {});
 
     const applications = platform.applications || [];
     const platformDepth = platform.depth || options.platformDepth;
@@ -82,6 +94,7 @@ platformInto = (svg, x, y, platform, options = {}) => {
     const name = platform.name || options.platformName;
     const padding = platform.padding || options.platformPadding;
     const applicationWidth = widthOfApplications(applications, options);
+    const applicationHeight = heightOfApplications(applications, options);
     const platformWidth = Math.max(platform.width || options.platformWidth, numberOfColumns * (applicationWidth + padding) - padding);
     const platformHeight = platform.height || options.platformHeight;
     const platformFill = platform.fill || options.platformFill;
@@ -108,18 +121,11 @@ platformInto = (svg, x, y, platform, options = {}) => {
     let vb = [x, y, x + platformWidth, y + platformHeight]   
     mergeViewBoxInto(svg, vb);
 
-    let ax = x;
-    let ayTop = vb[3] + padding;
-    let ay = ayTop;
-    applications.forEach((application, index) => {
-        const v = applicationInto(svg, ax, ay, application, options);
-        vb = combineViewBox(vb, v);
-        ay = v[3] + padding;
+    const layout = topDownBlockLayout(x, vb[3] + padding, applicationWidth, applicationHeight, padding, platformDepth, applications.length);
 
-        if ((index - platformDepth + 1) % platformDepth === 0) {
-            ay = ayTop;
-            ax = ax + applicationWidth + padding;
-        }
+    applications.forEach((application, index) => {
+        const pos = layout.position(index);
+        vb = combineViewBox(vb, applicationInto(svg, pos[0], pos[1], application, options));
     });
 
     return vb;
@@ -188,8 +194,7 @@ mergeViewBoxInto = (svg, viewbox) => {
     const vb = svg.attr("viewBox");
 
     const attachViewBox = (viewbox) =>
-        svg
-            .attr("viewBox", viewbox)
+        svg .attr("viewBox", viewbox)
             .attr("width", viewbox[2] - viewbox[0] + 1)
             .attr("height", viewbox[3] - viewbox[1] + 1);
 
@@ -200,5 +205,91 @@ mergeViewBoxInto = (svg, viewbox) => {
         attachViewBox(combineViewBox(parseViewBox(vb), viewbox));
     else
         attachViewBox(viewbox);
+}
+```
+
+The following function is used to calculate and determine block layouts.  The strategy employed here is a top-down strategy.
+
+``` js x
+topDownBlockLayout = (startX, startY, blockWidth, blockHeight, padding, columnDepth, numberOfBlocks) => {
+    if (columnDepth < 1)
+        throw {error: 'columnDepth < 1', function: 'topDownBlockLayout', value: columnDepth};
+
+    const numberOfColumns = Math.floor((numberOfBlocks + columnDepth - 1) / columnDepth);
+    const numberOfRows = Math.min(numberOfBlocks, columnDepth);
+    const width = numberOfColumns * (blockWidth + padding) - padding;
+    const height = numberOfRows * (blockHeight + padding) - padding;
+
+    return {
+        numberOfColumns,
+        numberOfRows,
+        width,
+        height,
+
+        viewbox: [startX, startY, width + startX, height + startY],
+
+        position: (i) => {
+            const column = Math.floor(i / columnDepth);
+            const row = i % columnDepth;
+
+            const xPos = (column * (blockWidth + padding)) + startX;
+            const yPos = (row * (blockHeight + padding)) + startY;
+
+            return [xPos, yPos, xPos + blockWidth, yPos + blockHeight];
+        }
+    };
+}
+```
+
+Now let's put this algorithm through it's paces.  Using the sliders watch the layout in action.
+
+``` js x view
+numberOfBlocks = Inputs.range([0, 50], {value: 10, step: 1, label: "Number of blocks"})
+```
+
+``` js x view
+blocksPerColumn = Inputs.range([1, 15], {value: 4, step: 1, label: "Blocks per column"})
+```
+
+``` js x view
+paddingBetweenBlocks = Inputs.range([0, 15], {value: 5, step: 1, label: "Padding"})
+```
+
+``` js x
+{
+    const svg = d3.create("svg");
+
+    const blocks = Array(numberOfBlocks).fill(0).map((_, i) => `${i}`);
+    const layout = topDownBlockLayout(0, 0, 30, 20, paddingBetweenBlocks, blocksPerColumn, numberOfBlocks);
+
+    svg.append("rect")
+        .attr("x", layout.viewbox[0])
+        .attr("y", layout.viewbox[1])
+        .attr("width", layout.width)
+        .attr("height", layout.height)
+        .attr("fill", "grey");
+
+    blocks.forEach((block, i) => {
+        const pos = layout.position(i);
+
+        svg.append("rect")
+            .attr("x", pos[0])
+            .attr("y", pos[1])
+            .attr("width", 30)
+            .attr("height", 20)
+            .attr("fill", "lightgrey");
+
+        svg.append("text")
+            .attr("x", (pos[0] + pos[2]) / 2)
+            .attr("y", (pos[1] + pos[3]) / 2)
+            .attr("font-size", "10pt")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .text(block);
+    });
+
+    mergeViewBoxInto(svg, layout.viewbox);
+
+    return svg.node();
 }
 ```
